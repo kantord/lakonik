@@ -7,6 +7,7 @@ use nom::{
     character::complete::space1,
     combinator::eof,
 };
+use anyhow::Result;
 
 /// Names the entity you are talking to
 #[derive(Debug)]
