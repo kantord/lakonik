@@ -1,5 +1,5 @@
 use nom::Parser;
-use nom::character::char;
+use nom::character::complete::char;
 use nom::character::complete::{multispace1, one_of};
 use nom::combinator::recognize;
 use nom::multi::many1;
