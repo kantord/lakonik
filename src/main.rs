@@ -1,35 +1,6 @@
 mod parser;
 use clap::Parser as ClapParser;
-use parser::parse_sentence;
-
-
-
-/// Names the entity you are talking to
-#[derive(Debug)]
-enum Vocative {
-    Foo,
-    Bar,
-}
-
-/// Verbs are actions/capabilities the entity is expected to perform
-#[derive(Debug)]
-enum Verb {
-    Lorem,
-    Ipsum,
-}
-
-/// The fully-parsed sentence. Describes a prompt.
-#[derive(Debug)]
-struct Sentence {
-    vocative: Vocative,
-    verb: Verb,
-}
-
-impl std::fmt::Display for Sentence {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?} {:?}", self.vocative, self.verb)
-    }
-}
+use parser::parse_statement;
 
 #[derive(ClapParser, Debug)]
 #[command(name = "my_cli", version, about, trailing_var_arg = true)]
@@ -43,7 +14,6 @@ struct Cli {
     input: Vec<String>,
 }
 
-
 fn main() {
     let cli = Cli::parse();
     let raw = cli.input.join(" ");
@@ -53,7 +23,7 @@ fn main() {
         std::process::exit(1);
     }
 
-    let result = parse_sentence(&raw);
+    let result = parse_statement(&raw);
     println!("Raw sentence: {}", raw);
     println!("Parsed sentence: {:#?}", result);
 }
