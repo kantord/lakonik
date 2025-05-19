@@ -7,21 +7,21 @@ use nom::{IResult, branch::alt};
 
 /// Names the entity you are talking to
 #[derive(Debug, PartialEq)]
-struct Vocative {
-    name: String,
+pub struct Vocative {
+    pub name: String,
 }
 
 /// Verbs are actions/capabilities the entity is expected to perform
 #[derive(Debug, PartialEq)]
-struct Verb {
-    name: String,
+pub struct Verb {
+    pub name: String,
 }
 
 /// The fully-parsed sentence. Describes a prompt.
 #[derive(Debug, PartialEq)]
 pub struct Sentence {
-    vocative: Vocative,
-    verb: Verb,
+    pub vocative: Vocative,
+    pub verb: Verb,
 }
 
 fn lowercase_char(input: &str) -> IResult<&str, char> {
