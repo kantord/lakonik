@@ -2,10 +2,7 @@ mod parser;
 
 use clap::Parser as ClapParser;
 use parser::parse_statement;
-use rllm::{
-    builder::{LLMBackend, LLMBuilder},
-    chat::{ChatMessage, ChatRole},
-};
+use rig::{completion::Prompt, providers::ollama};
 
 #[derive(ClapParser, Debug)]
 #[command(name = "my_cli", version, about, trailing_var_arg = true)]
@@ -19,7 +16,8 @@ struct Cli {
     input: Vec<String>,
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let cli = Cli::parse();
     let raw = cli.input.join(" ");
 
@@ -32,17 +30,12 @@ fn main() {
     println!("Raw sentence: {}", raw);
     println!("Parsed sentence: {:#?}", result);
 
-    let llm = LLMBuilder::new()
-        .backend(LLMBackend::Ollama)
-        .model(result.vocative.name)
-        .build()
-        .expect("Failed to create LLM backend");
+    let client = ollama::Client::new();
+    let agent = client.agent(&result.vocative.name).build();
+    let response = agent
+        .prompt(&result.verb.name)
+        .await
+        .expect("could not get results");
 
-    let messages = vec![ChatMessage {
-        role: ChatRole::User,
-        message_type: Default::default(),
-        content: "Tell me that you love cats".into(),
-    }];
-
-    let _ = llm.chat(&messages);
+    println!("Ollama completion response: {:?}", response);
 }
