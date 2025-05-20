@@ -1,5 +1,6 @@
 mod parser;
 
+use anyhow::{Context, Ok, Result, anyhow};
 use clap::Parser as ClapParser;
 use parser::parse_statement;
 use rig::{completion::Prompt, providers::ollama};
@@ -17,16 +18,13 @@ struct Cli {
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<()> {
     let cli = Cli::parse();
     let raw = cli.input.join(" ");
 
-    if raw.trim().is_empty() {
-        eprintln!("You need to specify who you are talking to. Available vocatives: foo, bar");
-        std::process::exit(1);
-    }
-
-    let (_, result) = parse_statement(&raw).expect("Failed to parse statement");
+    let (_, result) = parse_statement(&raw)
+        .map_err(|e| anyhow!("{e:?}"))
+        .with_context(|| format!("Failed to parse input: {raw:?}"))?;
     println!("Raw sentence: {}", raw);
     println!("Parsed sentence: {:#?}", result);
 
@@ -38,4 +36,6 @@ async fn main() {
         .expect("could not get results");
 
     println!("Ollama completion response: {:?}", response);
+
+    Ok(())
 }

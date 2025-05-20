@@ -1,8 +1,9 @@
 use nom::Parser;
-use nom::character::complete::char;
+use nom::character::complete::{alphanumeric1, char};
 use nom::character::complete::{multispace1, one_of};
-use nom::combinator::{all_consuming, map, recognize};
-use nom::multi::many1;
+use nom::combinator::{all_consuming, map, opt, recognize};
+use nom::multi::{many1, separated_list0, separated_list1};
+use nom::sequence::preceded;
 use nom::{IResult, branch::alt};
 
 /// Names the entity you are talking to
@@ -17,11 +18,18 @@ pub struct Verb {
     pub name: String,
 }
 
+/// Generic parts that can contain objects or free form text
+#[derive(Debug, PartialEq)]
+pub struct Part {
+    pub text: String,
+}
+
 /// The fully-parsed sentence. Describes a prompt.
 #[derive(Debug, PartialEq)]
 pub struct Sentence {
     pub vocative: Vocative,
     pub verb: Verb,
+    pub parts: Vec<Part>,
 }
 
 fn lowercase_char(input: &str) -> IResult<&str, char> {
@@ -66,10 +74,33 @@ fn verb(input: &str) -> IResult<&str, Verb> {
     .parse(input)
 }
 
-fn sentence(input: &str) -> IResult<&str, Sentence> {
-    map((vocative, multispace1, verb), |(vocative, _, verb)| {
-        Sentence { vocative, verb }
+fn part(input: &str) -> IResult<&str, Part> {
+    map(alphanumeric1, |text: &str| Part {
+        text: text.to_string(),
     })
+    .parse(input)
+}
+
+fn parts(input: &str) -> IResult<&str, Vec<Part>> {
+    separated_list1(multispace1, part).parse(input)
+}
+
+fn maybe_parts(input: &str) -> IResult<&str, Vec<Part>> {
+    map(opt(preceded(multispace1, parts)), |opt_vec| {
+        opt_vec.unwrap_or_default()
+    })
+    .parse(input)
+}
+
+fn sentence(input: &str) -> IResult<&str, Sentence> {
+    map(
+        (vocative, multispace1, verb, maybe_parts),
+        |(vocative, _, verb, parts)| Sentence {
+            vocative,
+            verb,
+            parts,
+        },
+    )
     .parse(input)
 }
 
@@ -101,6 +132,7 @@ mod tests {
             verb: Verb {
                 name: verb.to_string(),
             },
+            parts: vec![],
         };
 
         assert_eq!(parse_statement(input), Ok(("", expected)));
