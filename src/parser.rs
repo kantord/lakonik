@@ -2,7 +2,7 @@ use nom::Parser;
 use nom::character::complete::{alphanumeric1, char};
 use nom::character::complete::{multispace1, one_of};
 use nom::combinator::{all_consuming, map, opt, recognize};
-use nom::multi::{many1, separated_list0, separated_list1};
+use nom::multi::{many1, separated_list1};
 use nom::sequence::preceded;
 use nom::{IResult, branch::alt};
 

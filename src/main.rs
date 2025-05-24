@@ -28,12 +28,17 @@ async fn main() -> Result<()> {
     println!("Raw sentence: {}", raw);
     println!("Parsed sentence: {:#?}", result);
 
+    let freeform_part = result
+        .parts
+        .iter()
+        .map(|p| p.text.as_str())
+        .collect::<Vec<_>>()
+        .join(" ");
+    let prompt = format!("{} {}", &result.verb.name, freeform_part);
+
     let client = ollama::Client::new();
     let agent = client.agent(&result.vocative.name).build();
-    let response = agent
-        .prompt(&result.verb.name)
-        .await
-        .expect("could not get results");
+    let response = agent.prompt(prompt).await.expect("could not get results");
 
     println!("Ollama completion response: {:?}", response);
 
