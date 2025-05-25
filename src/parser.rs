@@ -177,22 +177,15 @@ mod tests {
     #[case("bob123 fly", "bob123", "fly")]
     #[case("john-doe123 run-fast", "john-doe123", "run-fast")]
     #[case("john- run", "john-", "run")]
-    fn test_parse_statement_success(
-        #[case] input: &str,
-        #[case] vocative: &str,
-        #[case] verb: &str,
-    ) {
-        let expected = Sentence {
-            vocative: Vocative {
-                name: vocative.to_string(),
-            },
-            verb: Verb {
-                name: verb.to_string(),
-            },
-            parts: vec![],
-        };
+    fn test_parse_statement_success(#[case] input: &str, #[case] voc: &str, #[case] verb: &str) {
+        let result = parse_statement(Span::new(input));
 
-        assert_eq!(parse_statement(input), Ok(("", expected)));
+        let (rest, sentence) = result.expect("parser should succeed");
+        assert_eq!(*rest.fragment(), "");
+
+        assert_eq!(sentence.vocative.name, voc);
+        assert_eq!(sentence.verb.name, verb);
+        assert!(sentence.parts.is_empty());
     }
 
     #[rstest]
@@ -202,6 +195,6 @@ mod tests {
     #[case("")]
     #[case("alice! jump")]
     fn test_parse_statement_failure(#[case] input: &str) {
-        assert!(parse_statement(input).is_err());
+        assert!(parse_statement(Span::new(input)).is_err());
     }
 }
