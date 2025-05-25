@@ -6,16 +6,17 @@ use nom::multi::{many1, separated_list1};
 use nom::sequence::preceded;
 use nom::{IResult, branch::alt};
 use nom_locate::LocatedSpan;
+use serde::Serialize;
 
 pub type Span<'a> = LocatedSpan<&'a str>;
 
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq, Clone, Copy, Serialize)]
 pub struct SourcePosition {
     pub line: u32,
     pub offset: usize,
 }
 
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq, Clone, Copy, Serialize)]
 pub struct SourceRange {
     pub start: SourcePosition,
     pub end: SourcePosition,
@@ -48,28 +49,28 @@ pub fn range(span: Span) -> SourceRange {
 }
 
 /// Names the entity you are talking to
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 pub struct Vocative {
     range: SourceRange,
     pub name: String,
 }
 
 /// Verbs are actions/capabilities the entity is expected to perform
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 pub struct Verb {
     range: SourceRange,
     pub name: String,
 }
 
 /// Generic parts that can contain objects or free form text
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 pub struct Part {
     range: SourceRange,
     pub text: String,
 }
 
 /// The fully-parsed sentence. Describes a prompt.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 pub struct Sentence {
     range: SourceRange,
     pub vocative: Vocative,
