@@ -5,38 +5,76 @@ use nom::combinator::{all_consuming, map, opt, recognize};
 use nom::multi::{many1, separated_list1};
 use nom::sequence::preceded;
 use nom::{IResult, branch::alt};
-use nom_locate::{LocatedSpan, position};
+use nom_locate::LocatedSpan;
 
 pub type Span<'a> = LocatedSpan<&'a str>;
 
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub struct SourcePosition {
+    pub line: u32,
+    pub offset: usize,
+}
+
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub struct SourceRange {
+    pub start: SourcePosition,
+    pub end: SourcePosition,
+}
+
+pub fn range(span: Span) -> SourceRange {
+    let start_offset = span.location_offset();
+    let start_line = span.location_line();
+
+    let mut end_offset = start_offset;
+    let mut end_line = start_line;
+
+    for ch in span.fragment().chars() {
+        end_offset += ch.len_utf8();
+        if ch == '\n' {
+            end_line += 1;
+        }
+    }
+
+    SourceRange {
+        start: SourcePosition {
+            line: start_line,
+            offset: start_offset,
+        },
+        end: SourcePosition {
+            line: end_line,
+            offset: end_offset,
+        },
+    }
+}
+
 /// Names the entity you are talking to
 #[derive(Debug, PartialEq)]
-pub struct Vocative<'a> {
-    position: Span<'a>,
+pub struct Vocative {
+    range: SourceRange,
     pub name: String,
 }
 
 /// Verbs are actions/capabilities the entity is expected to perform
 #[derive(Debug, PartialEq)]
-pub struct Verb<'a> {
-    position: Span<'a>,
+pub struct Verb {
+    range: SourceRange,
     pub name: String,
 }
 
 /// Generic parts that can contain objects or free form text
 #[derive(Debug, PartialEq)]
-pub struct Part<'a> {
-    position: Span<'a>,
+pub struct Part {
+    range: SourceRange,
     pub text: String,
 }
 
 /// The fully-parsed sentence. Describes a prompt.
 #[derive(Debug, PartialEq)]
-pub struct Sentence<'a> {
-    position: Span<'a>,
-    pub vocative: Vocative<'a>,
-    pub verb: Verb<'a>,
-    pub parts: Vec<Part<'a>>,
+pub struct Sentence {
+    range: SourceRange,
+    pub vocative: Vocative,
+    pub verb: Verb,
+    pub parts: Vec<Part>,
 }
 
 fn lowercase_char(input: Span) -> IResult<Span, char> {
@@ -68,30 +106,30 @@ fn lowercase_name(input: Span) -> IResult<Span, Span> {
 }
 
 fn vocative(input: Span) -> IResult<Span, Vocative> {
-    let (_, position) = position(input)?;
+    let range = range(input);
 
     map(lowercase_name, |name| Vocative {
-        position,
+        range,
         name: name.to_string(),
     })
     .parse(input)
 }
 
 fn verb(input: Span) -> IResult<Span, Verb> {
-    let (_, position) = position(input)?;
+    let range = range(input);
 
     map(lowercase_name, |name| Verb {
-        position,
+        range,
         name: name.to_string(),
     })
     .parse(input)
 }
 
 fn part(input: Span) -> IResult<Span, Part> {
-    let (_, position) = position(input)?;
+    let range = range(input);
 
     map(alphanumeric1, |text: Span| Part {
-        position,
+        range,
         text: text.to_string(),
     })
     .parse(input)
@@ -109,12 +147,12 @@ fn maybe_parts(input: Span) -> IResult<Span, Vec<Part>> {
 }
 
 fn sentence(input: Span) -> IResult<Span, Sentence> {
-    let (_, position) = position(input)?;
+    let range = range(input);
 
     map(
         (vocative, multispace1, verb, maybe_parts),
         |(vocative, _, verb, parts)| Sentence {
-            position,
+            range,
             vocative,
             verb,
             parts,
