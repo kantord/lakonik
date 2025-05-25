@@ -50,6 +50,7 @@ pub fn range(span: Span) -> SourceRange {
 
 /// Names the entity you are talking to
 #[derive(Debug, PartialEq, Serialize)]
+#[serde(tag = "type", rename = "vocative")]
 pub struct Vocative {
     range: SourceRange,
     pub name: String,
@@ -57,6 +58,7 @@ pub struct Vocative {
 
 /// Verbs are actions/capabilities the entity is expected to perform
 #[derive(Debug, PartialEq, Serialize)]
+#[serde(tag = "type", rename = "verb")]
 pub struct Verb {
     range: SourceRange,
     pub name: String,
@@ -64,6 +66,7 @@ pub struct Verb {
 
 /// Generic parts that can contain objects or free form text
 #[derive(Debug, PartialEq, Serialize)]
+#[serde(tag = "type", rename = "part")]
 pub struct Part {
     range: SourceRange,
     pub text: String,
@@ -71,6 +74,7 @@ pub struct Part {
 
 /// The fully-parsed sentence. Describes a prompt.
 #[derive(Debug, PartialEq, Serialize)]
+#[serde(tag = "type", rename = "sentence")]
 pub struct Sentence {
     range: SourceRange,
     pub vocative: Vocative,
