@@ -1,7 +1,9 @@
 mod parser;
+mod verbs;
 
 use anyhow::{Context, Ok, Result, anyhow};
 use clap::Parser as ClapParser;
+use minijinja::context;
 use parser::parse_statement;
 use rig::{completion::Prompt, providers::ollama};
 
@@ -28,13 +30,21 @@ async fn main() -> Result<()> {
     println!("Raw sentence: {}", raw);
     println!("Parsed sentence: {:#?}", result);
 
-    let freeform_part = result
+    let description = result
         .parts
         .iter()
         .map(|p| p.text.as_str())
         .collect::<Vec<_>>()
         .join(" ");
-    let prompt = format!("{} {}", &result.verb.name, freeform_part);
+
+    let environment = verbs::build_environment();
+    let context = context! {
+        description,
+    };
+    let template = environment.get_template(&result.verb.name).unwrap();
+    let prompt = template.render(context).unwrap();
+
+    println!("Prompt: {}", prompt);
 
     let client = ollama::Client::new();
     let agent = client.agent(&result.vocative.name).build();
