@@ -4,7 +4,7 @@ mod verbs;
 use anyhow::{Context, Ok, Result, anyhow};
 use clap::Parser as ClapParser;
 use minijinja::context;
-use parser::parse_statement;
+use parser::{Span, parse_statement};
 use rig::{completion::Prompt, providers::ollama};
 
 #[derive(ClapParser, Debug)]
@@ -24,7 +24,7 @@ async fn main() -> Result<()> {
     let cli = Cli::parse();
     let raw = cli.input.join(" ");
 
-    let (_, result) = parse_statement(&raw)
+    let (_, result) = parse_statement(Span::new(&raw))
         .map_err(|e| anyhow!("{e:?}"))
         .with_context(|| format!("Failed to parse input: {raw:?}"))?;
     println!("Raw sentence: {}", raw);
