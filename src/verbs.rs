@@ -1,7 +1,7 @@
 use include_dir::{Dir, include_dir};
 use minijinja::Environment;
 
-static BUILT_IN_TEMPLATES_DIR: Dir = include_dir!("$CARGO_MANIFEST_DIR/templates");
+static BUILT_IN_TEMPLATES_DIR: Dir = include_dir!("$CARGO_MANIFEST_DIR/verbs");
 
 pub struct Template {
     pub path: String,
@@ -14,7 +14,11 @@ pub fn get_built_in_templates() -> impl Iterator<Item = Template> {
         .expect("Failed to traverse embedded templates")
         .filter_map(|entry| {
             entry.as_file().map(|f| Template {
-                path: f.path().to_string_lossy().into_owned(),
+                path: f
+                    .path()
+                    .to_string_lossy()
+                    .into_owned()
+                    .replace("verbs/", ""),
                 contents: f
                     .contents_utf8()
                     .expect("Invalid UTF-8 in embedded template")
@@ -27,7 +31,7 @@ pub fn build_environment() -> Environment<'static> {
     let mut env = Environment::new();
 
     for template in get_built_in_templates() {
-        let name = template.path.replace("templates/", "");
+        let name = template.path;
         env.add_template_owned(name, template.contents)
             .expect("Failed to add template");
     }
