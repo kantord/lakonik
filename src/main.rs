@@ -8,7 +8,7 @@ use parser::{Span, parse_statement};
 use rig::{completion::Prompt, providers::ollama};
 
 #[derive(ClapParser, Debug)]
-#[command(name = "my_cli", version, about, trailing_var_arg = true)]
+#[command(name = "lakonik", version, about, trailing_var_arg = true)]
 struct Cli {
     /// Verbose mode
     #[arg(short, long)]
