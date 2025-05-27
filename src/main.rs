@@ -30,8 +30,7 @@ async fn main() -> Result<()> {
     println!("Raw sentence: {}", raw);
     println!("Parsed sentence: {:#?}", result);
 
-    let json = serde_json::to_string(&result)
-        .expect("Failed to serialize result to JSON");
+    let json = serde_json::to_string(&result).expect("Failed to serialize result to JSON");
 
     println!("JSON representation: {}", json);
 
@@ -46,7 +45,9 @@ async fn main() -> Result<()> {
     let context = context! {
         description,
     };
-    let template = environment.get_template(&result.verb.name).unwrap();
+    let template = environment
+        .get_template(&format!("verbs/{}", &result.verb.name))
+        .unwrap();
     let prompt = template.render(context).unwrap();
 
     println!("Prompt: {}", prompt);

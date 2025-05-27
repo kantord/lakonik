@@ -1,7 +1,7 @@
 use include_dir::{Dir, include_dir};
 use minijinja::Environment;
 
-static BUILT_IN_TEMPLATES_DIR: Dir = include_dir!("$CARGO_MANIFEST_DIR/verbs");
+static BUILT_IN_TEMPLATES_DIR: Dir = include_dir!("$CARGO_MANIFEST_DIR/templates");
 
 pub struct Template {
     pub path: String,
@@ -18,7 +18,7 @@ pub fn get_built_in_templates() -> impl Iterator<Item = Template> {
                     .path()
                     .to_string_lossy()
                     .into_owned()
-                    .replace("verbs/", ""),
+                    .replace("templates/", ""),
                 contents: f
                     .contents_utf8()
                     .expect("Invalid UTF-8 in embedded template")
