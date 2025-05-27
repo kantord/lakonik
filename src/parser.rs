@@ -64,12 +64,18 @@ pub struct Verb {
     pub name: String,
 }
 
-/// Generic parts that can contain objects or free form text
+/// Contains free-from text
 #[derive(Debug, PartialEq, Serialize)]
-#[serde(tag = "type", rename = "part")]
-pub struct Part {
+#[serde(tag = "type", rename = "freeform")]
+pub struct FreeformPart {
     range: SourceRange,
     pub text: String,
+}
+
+/// Generic parts that can contain objects or free form text
+#[derive(Debug, PartialEq, Serialize)]
+pub enum Part {
+    Freeform(FreeformPart),
 }
 
 /// The fully-parsed sentence. Describes a prompt.
@@ -130,12 +136,23 @@ fn verb(input: Span) -> IResult<Span, Verb> {
     .parse(input)
 }
 
-fn part(input: Span) -> IResult<Span, Part> {
+fn freeform_part(input: Span) -> IResult<Span, FreeformPart> {
     let range = range(input);
 
-    map(alphanumeric1, |text: Span| Part {
+    map(alphanumeric1, |text: Span| FreeformPart {
         range,
         text: text.to_string(),
+    })
+    .parse(input)
+}
+
+fn part(input: Span) -> IResult<Span, Part> {
+    let range = range(input);
+    map(freeform_part, |part| {
+        Part::Freeform(FreeformPart {
+            range,
+            text: part.text,
+        })
     })
     .parse(input)
 }

@@ -37,7 +37,10 @@ async fn main() -> Result<()> {
     let description = result
         .parts
         .iter()
-        .map(|p| p.text.as_str())
+        .filter_map(|part| match part {
+            parser::Part::Freeform(free) => Some(free.text.as_str()),
+            _ => None,
+        })
         .collect::<Vec<_>>()
         .join(" ");
 
