@@ -4,7 +4,7 @@ mod verbs;
 
 use anyhow::{Ok, Result};
 use clap::Parser as ClapParser;
-use engine::parse;
+use engine::{extract_description, parse};
 use minijinja::context;
 use rig::{completion::Prompt, providers::ollama};
 
@@ -28,15 +28,7 @@ async fn main() -> Result<()> {
     let result = parse(&raw);
     // let json = serde_json::to_string(&result).expect("Failed to serialize result to JSON");
 
-    let description = result
-        .parts
-        .iter()
-        .filter_map(|part| match part {
-            parser::Part::Freeform(free) => Some(free.text.as_str()),
-            _ => None,
-        })
-        .collect::<Vec<_>>()
-        .join(" ");
+    let description = extract_description(&result);
 
     let environment = verbs::build_environment();
     let context = context! {
