@@ -26,12 +26,7 @@ async fn main() -> Result<()> {
     let raw = cli.input.join(" ");
 
     let result = parse(&raw);
-    println!("Raw sentence: {}", raw);
-    println!("Parsed sentence: {:#?}", result);
-
-    let json = serde_json::to_string(&result).expect("Failed to serialize result to JSON");
-
-    println!("JSON representation: {}", json);
+    // let json = serde_json::to_string(&result).expect("Failed to serialize result to JSON");
 
     let description = result
         .parts
