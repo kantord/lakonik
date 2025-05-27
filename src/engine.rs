@@ -5,7 +5,7 @@ use crate::{
     verbs::build_environment,
 };
 use duct::cmd;
-use minijinja::context;
+use minijinja::{Environment, context};
 use serde::Serialize;
 
 pub fn parse(input: &str) -> Sentence {
@@ -15,7 +15,7 @@ pub fn parse(input: &str) -> Sentence {
     sentence
 }
 
-pub fn get_cmd_result(code: &str) -> String {
+pub fn format_cmd_result(code: &str, environment: &Environment) -> String {
     let cmd = cmd!("bash", "-c", code);
     let mut reader = cmd
         .stderr_to_stdout()
@@ -27,16 +27,22 @@ pub fn get_cmd_result(code: &str) -> String {
         .read_to_string(&mut result)
         .expect("could not read command output");
 
-    result
+    let template = environment.get_template("parts/shell").unwrap();
+    let context = context! {
+        code,
+        result,
+    };
+
+    template.render(context).unwrap()
 }
 
-pub fn extract_description(sentence: &Sentence) -> String {
+pub fn extract_description(sentence: &Sentence, environment: &Environment) -> String {
     let description = sentence
         .parts
         .iter()
         .filter_map(|part| match part {
             Part::Freeform(part) => Some(part.text.clone()),
-            Part::InlineShell(part) => Some(get_cmd_result(&part.code.as_str())),
+            Part::InlineShell(part) => Some(format_cmd_result(&part.code.as_str(), environment)),
             _ => None,
         })
         .collect::<Vec<_>>()
@@ -46,9 +52,9 @@ pub fn extract_description(sentence: &Sentence) -> String {
 }
 
 pub fn build_prompt(result: &Sentence) -> String {
-    let description = extract_description(&result);
-
     let environment = build_environment();
+
+    let description = extract_description(&result, &environment);
     let context = context! {
         description,
     };
