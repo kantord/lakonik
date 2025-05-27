@@ -4,8 +4,7 @@ mod verbs;
 
 use anyhow::{Ok, Result};
 use clap::Parser as ClapParser;
-use engine::{extract_description, parse};
-use minijinja::context;
+use engine::{build_prompt, parse};
 use rig::{completion::Prompt, providers::ollama};
 
 #[derive(ClapParser, Debug)]
@@ -26,18 +25,8 @@ async fn main() -> Result<()> {
     let raw = cli.input.join(" ");
 
     let result = parse(&raw);
+    let prompt = build_prompt(&result);
     // let json = serde_json::to_string(&result).expect("Failed to serialize result to JSON");
-
-    let description = extract_description(&result);
-
-    let environment = verbs::build_environment();
-    let context = context! {
-        description,
-    };
-    let template = environment
-        .get_template(&format!("verbs/{}", &result.verb.name))
-        .unwrap();
-    let prompt = template.render(context).unwrap();
 
     println!("Prompt: {}", prompt);
 

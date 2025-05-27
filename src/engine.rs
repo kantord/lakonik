@@ -1,4 +1,5 @@
-use crate::parser::{Part, Sentence, Span, parse_statement};
+use minijinja::context;
+use crate::{parser::{parse_statement, Part, Sentence, Span}, verbs::build_environment};
 
 pub fn parse(input: &str) -> Sentence {
     let span = Span::new(input);
@@ -19,4 +20,19 @@ pub fn extract_description(sentence: &Sentence) -> String {
         .join(" ");
 
     description
+}
+
+pub fn build_prompt(result: &Sentence) -> String {
+    let description = extract_description(&result);
+
+    let environment = build_environment();
+    let context = context! {
+        description,
+    };
+    let template = environment
+        .get_template(&format!("verbs/{}", &result.verb.name))
+        .unwrap();
+    let prompt = template.render(context).unwrap();
+
+    prompt
 }
