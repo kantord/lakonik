@@ -1,9 +1,10 @@
 use nom::Parser;
+use nom::bytes::complete::{tag, take_until};
 use nom::character::complete::{alphanumeric1, char};
 use nom::character::complete::{multispace1, one_of};
 use nom::combinator::{all_consuming, map, opt, recognize};
 use nom::multi::{many1, separated_list1};
-use nom::sequence::preceded;
+use nom::sequence::{delimited, preceded};
 use nom::{IResult, branch::alt};
 use nom_locate::LocatedSpan;
 use serde::Serialize;
@@ -72,10 +73,28 @@ pub struct FreeformPart {
     pub text: String,
 }
 
+/// Contains a file path
+#[derive(Debug, PartialEq, Serialize)]
+#[serde(tag = "type", rename = "filepath")]
+pub struct FilePathPart {
+    range: SourceRange,
+    pub path: String,
+}
+
+/// Contains an inline shell script
+#[derive(Debug, PartialEq, Serialize)]
+#[serde(tag = "type", rename = "inline_shell")]
+pub struct InlineShellPart {
+    range: SourceRange,
+    pub code: String,
+}
+
 /// Generic parts that can contain objects or free form text
 #[derive(Debug, PartialEq, Serialize)]
 pub enum Part {
     Freeform(FreeformPart),
+    FilePath(FilePathPart),
+    InlineShell(InlineShellPart),
 }
 
 /// The fully-parsed sentence. Describes a prompt.
@@ -146,14 +165,37 @@ fn freeform_part(input: Span) -> IResult<Span, FreeformPart> {
     .parse(input)
 }
 
-fn part(input: Span) -> IResult<Span, Part> {
+fn filepath_part(input: Span) -> IResult<Span, FilePathPart> {
     let range = range(input);
-    map(freeform_part, |part| {
-        Part::Freeform(FreeformPart {
+
+    map(preceded(tag("@"), alphanumeric1), |text: Span| {
+        FilePathPart {
             range,
-            text: part.text,
-        })
+            path: text.to_string(),
+        }
     })
+    .parse(input)
+}
+
+fn inline_shell_part(input: Span) -> IResult<Span, InlineShellPart> {
+    let range = range(input);
+
+    map(
+        delimited(tag("$("), take_until(")"), tag(")")),
+        |code: Span| InlineShellPart {
+            range,
+            code: code.to_string(),
+        },
+    )
+    .parse(input)
+}
+
+fn part(input: Span) -> IResult<Span, Part> {
+    alt((
+        map(filepath_part, |p| Part::FilePath(p)),
+        map(freeform_part, |p| Part::Freeform(p)),
+        map(inline_shell_part, |p| Part::InlineShell(p)),
+    ))
     .parse(input)
 }
 
