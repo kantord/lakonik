@@ -1,5 +1,9 @@
+use crate::{
+    parser::{Part, Sentence, Span, parse_statement},
+    verbs::build_environment,
+};
 use minijinja::context;
-use crate::{parser::{parse_statement, Part, Sentence, Span}, verbs::build_environment};
+use serde::Serialize;
 
 pub fn parse(input: &str) -> Sentence {
     let span = Span::new(input);
@@ -35,4 +39,17 @@ pub fn build_prompt(result: &Sentence) -> String {
     let prompt = template.render(context).unwrap();
 
     prompt
+}
+
+#[derive(Debug, PartialEq, Serialize)]
+pub struct PromptBuilderResult {
+    pub ast: Sentence,
+    pub prompt: String,
+}
+
+pub fn run_prompt_builder(raw_input: &str) -> PromptBuilderResult {
+    let ast = parse(raw_input);
+    let prompt = build_prompt(&ast);
+
+    return PromptBuilderResult { ast, prompt };
 }

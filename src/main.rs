@@ -4,8 +4,7 @@ mod verbs;
 
 use anyhow::{Ok, Result};
 use clap::Parser as ClapParser;
-use engine::{build_prompt, parse};
-use rig::{completion::Prompt, providers::ollama};
+use engine::run_prompt_builder;
 
 #[derive(ClapParser, Debug)]
 #[command(name = "lakonik", version, about, trailing_var_arg = true)]
@@ -24,17 +23,17 @@ async fn main() -> Result<()> {
     let cli = Cli::parse();
     let raw = cli.input.join(" ");
 
-    let result = parse(&raw);
-    let prompt = build_prompt(&result);
-    // let json = serde_json::to_string(&result).expect("Failed to serialize result to JSON");
+    let prompt_builder_result = run_prompt_builder(&raw);
+    let json =
+        serde_json::to_string(&prompt_builder_result).expect("Failed to serialize result to JSON");
 
-    println!("Prompt: {}", prompt);
+    println!("{}", json);
 
-    let client = ollama::Client::new();
-    let agent = client.agent(&result.vocative.name).build();
-    let response = agent.prompt(prompt).await.expect("could not get results");
-
-    println!("Ollama completion response: {:?}", response);
+    // let client = ollama::Client::new();
+    // let agent = client.agent(&result.vocative.name).build();
+    // let response = agent.prompt(prompt).await.expect("could not get results");
+    //
+    // println!("Ollama completion response: {:?}", response);
 
     Ok(())
 }
