@@ -1,7 +1,10 @@
+use std::io::Read;
+
 use crate::{
     parser::{Part, Sentence, Span, parse_statement},
     verbs::build_environment,
 };
+use duct::cmd;
 use minijinja::context;
 use serde::Serialize;
 
@@ -12,12 +15,28 @@ pub fn parse(input: &str) -> Sentence {
     sentence
 }
 
+pub fn get_cmd_result(code: &str) -> String {
+    let cmd = cmd!("bash", "-c", code);
+    let mut reader = cmd
+        .stderr_to_stdout()
+        .reader()
+        .expect(format!("could not run command: {}", code).as_str());
+    let mut result = String::new();
+
+    reader
+        .read_to_string(&mut result)
+        .expect("could not read command output");
+
+    result
+}
+
 pub fn extract_description(sentence: &Sentence) -> String {
     let description = sentence
         .parts
         .iter()
         .filter_map(|part| match part {
-            Part::Freeform(free) => Some(free.text.as_str()),
+            Part::Freeform(part) => Some(part.text.clone()),
+            Part::InlineShell(part) => Some(get_cmd_result(&part.code.as_str())),
             _ => None,
         })
         .collect::<Vec<_>>()
