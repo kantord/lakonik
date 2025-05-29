@@ -66,15 +66,48 @@ pub fn build_prompt(result: &Sentence) -> String {
     prompt
 }
 
+pub fn extract_attachments(sentence: &Sentence) -> Vec<Attachment> {
+    sentence
+        .parts
+        .iter()
+        .filter_map(|p| {
+            if let Part::FilePath(file_part) = p {
+                Some(Attachment::File(FileAttachment {
+                    path: file_part.path.clone(),
+                }))
+            } else {
+                None
+            }
+        })
+        .collect()
+}
+
+#[derive(Debug, PartialEq, Serialize)]
+pub struct FileAttachment {
+    pub path: String,
+}
+
+#[derive(Debug, PartialEq, Serialize)]
+#[serde(tag = "type", rename_all = "lowercase")] 
+pub enum Attachment {
+    File(FileAttachment),
+}
+
 #[derive(Debug, PartialEq, Serialize)]
 pub struct PromptBuilderResult {
     pub ast: Sentence,
+    pub attachments: Vec<Attachment>,
     pub prompt: String,
 }
 
 pub fn run_prompt_builder(raw_input: &str) -> PromptBuilderResult {
     let ast = parse(raw_input);
     let prompt = build_prompt(&ast);
+    let attachments = extract_attachments(&ast);
 
-    return PromptBuilderResult { ast, prompt };
+    return PromptBuilderResult {
+        ast,
+        attachments,
+        prompt,
+    };
 }
