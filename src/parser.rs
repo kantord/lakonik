@@ -1,8 +1,10 @@
+use std::path::PathBuf;
+
 use nom::Parser;
-use nom::bytes::complete::{tag, take_until};
+use nom::bytes::complete::{tag, take_until, take_while1};
 use nom::character::complete::{alphanumeric1, char};
 use nom::character::complete::{multispace1, one_of};
-use nom::combinator::{all_consuming, map, opt, recognize};
+use nom::combinator::{all_consuming, map, map_res, opt, recognize};
 use nom::multi::{many1, separated_list1};
 use nom::sequence::{delimited, preceded};
 use nom::{IResult, branch::alt};
@@ -168,12 +170,13 @@ fn freeform_part(input: Span) -> IResult<Span, FreeformPart> {
 fn filepath_part(input: Span) -> IResult<Span, FilePathPart> {
     let range = range(input);
 
-    map(preceded(tag("@"), alphanumeric1), |text: Span| {
-        FilePathPart {
-            range,
-            path: text.to_string(),
-        }
-    })
+    map(
+        preceded(tag("@"), take_while1(|c: char| !c.is_whitespace())),
+        move |s: Span| FilePathPart {
+            range: range.clone(),
+            path: s.fragment().to_string(),
+        },
+    )
     .parse(input)
 }
 
