@@ -1,5 +1,5 @@
 ---
-source: src/parser.rs
+source: src/parser/parser.rs
 expression: sentence
 ---
 type: sentence
@@ -9,7 +9,7 @@ range:
     offset: 0
   end:
     line: 1
-    offset: 27
+    offset: 24
 vocative:
   type: vocative
   range:
@@ -18,7 +18,7 @@ vocative:
       offset: 0
     end:
       line: 1
-      offset: 27
+      offset: 24
   name: qwen3
 verb:
   type: verb
@@ -28,26 +28,16 @@ verb:
       offset: 6
     end:
       line: 1
-      offset: 27
-  name: delete
+      offset: 24
+  name: create
 parts:
-  - Freeform:
-      type: freeform
+  - InlineShell:
+      type: inline_shell
       range:
         start:
           line: 1
           offset: 13
         end:
           line: 1
-          offset: 27
-      text: bar
-  - FilePath:
-      type: filepath
-      range:
-        start:
-          line: 1
-          offset: 17
-        end:
-          line: 1
-          offset: 27
-      path: hello.txt
+          offset: 24
+      code: "  tree ."

@@ -1,5 +1,5 @@
 ---
-source: src/parser.rs
+source: src/parser/parser.rs
 expression: sentence
 ---
 type: sentence
@@ -9,7 +9,7 @@ range:
     offset: 0
   end:
     line: 1
-    offset: 12
+    offset: 20
 vocative:
   type: vocative
   range:
@@ -18,16 +18,16 @@ vocative:
       offset: 0
     end:
       line: 1
-      offset: 12
-  name: alice42
+      offset: 20
+  name: john-doe123
 verb:
   type: verb
   range:
     start:
       line: 1
-      offset: 8
+      offset: 12
     end:
       line: 1
-      offset: 12
-  name: jump
+      offset: 20
+  name: run-fast
 parts: []

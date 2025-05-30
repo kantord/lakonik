@@ -1,5 +1,5 @@
 ---
-source: src/parser.rs
+source: src/parser/parser.rs
 expression: sentence
 ---
 type: sentence
