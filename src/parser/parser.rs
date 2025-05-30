@@ -1,5 +1,5 @@
 use nom::Parser;
-use nom::bytes::complete::{tag, take_until, take_while1};
+use nom::bytes::complete::{tag, take_until};
 use nom::character::complete::alphanumeric1;
 use nom::character::complete::multispace1;
 use nom::combinator::{all_consuming, map, opt};
@@ -8,7 +8,7 @@ use nom::sequence::{delimited, preceded};
 use nom::{IResult, branch::alt};
 use serde::Serialize;
 
-use super::primitives::lowercase_name;
+use super::primitives::{file_path, lowercase_name};
 use super::utils::{SourceRange, Span, range};
 
 /// Names the entity you are talking to
@@ -102,13 +102,10 @@ fn freeform_part(input: Span) -> IResult<Span, FreeformPart> {
 fn filepath_part(input: Span) -> IResult<Span, FilePathPart> {
     let range = range(input);
 
-    map(
-        preceded(tag("@"), take_while1(|c: char| !c.is_whitespace())),
-        move |s: Span| FilePathPart {
-            range: range.clone(),
-            path: s.fragment().to_string(),
-        },
-    )
+    map(preceded(tag("@"), file_path), move |s: Span| FilePathPart {
+        range: range.clone(),
+        path: s.fragment().to_string(),
+    })
     .parse(input)
 }
 

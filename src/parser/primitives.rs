@@ -1,4 +1,5 @@
 use nom::Parser;
+use nom::bytes::complete::take_while1;
 use nom::character::complete::char;
 use nom::character::complete::one_of;
 use nom::combinator::recognize;
@@ -33,4 +34,8 @@ pub fn lowercase_name_tail(input: Span) -> IResult<Span, Span> {
 
 pub fn lowercase_name(input: Span) -> IResult<Span, Span> {
     recognize((lowercase_char, lowercase_name_tail)).parse(input)
+}
+
+pub fn file_path(input: Span) -> IResult<Span, Span> {
+    take_while1(|c: char| !c.is_whitespace()).parse(input)
 }
