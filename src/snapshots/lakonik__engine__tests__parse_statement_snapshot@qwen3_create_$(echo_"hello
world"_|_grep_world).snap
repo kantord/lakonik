@@ -1,0 +1,6 @@
+---
+source: src/engine.rs
+expression: simplified_result
+---
+attachments: []
+prompt: "\n\nCommand: echo \"hello\nworld\" | grep world\nOutput:\nworld\n\n"
