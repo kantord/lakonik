@@ -108,3 +108,33 @@ pub fn run_prompt_builder(raw_input: &str) -> PromptBuilderResult {
         prompt,
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use insta::assert_yaml_snapshot;
+    use rstest::rstest;
+
+    #[derive(Debug, PartialEq, Serialize)]
+    struct SimplifiedPromptBuilderResult {
+        attachments: Vec<Attachment>,
+        prompt: String,
+    }
+
+    #[rstest]
+    #[case("qwen3 create bar $(expr 2 + 3)")]
+    #[case("qwen3 create $(expr 5 - 3)")]
+    #[case("qwen3 create $(echo \"hello\nworld\" | grep world)")]
+    fn parse_statement_snapshot(#[case] input: &str) {
+        let mut s = insta::Settings::clone_current();
+        s.set_snapshot_suffix(input.replace(' ', "_").to_string());
+        let _guard = s.bind_to_scope();
+        let results = run_prompt_builder(input);
+        let simplified_result = SimplifiedPromptBuilderResult {
+            attachments: results.attachments,
+            prompt: results.prompt,
+        };
+
+        assert_yaml_snapshot!(simplified_result);
+    }
+}

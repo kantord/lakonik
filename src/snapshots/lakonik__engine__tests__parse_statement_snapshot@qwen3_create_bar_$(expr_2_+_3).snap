@@ -1,0 +1,6 @@
+---
+source: src/engine.rs
+expression: simplified_result
+---
+attachments: []
+prompt: "bar \n\nCommand: expr 2 + 3\nOutput:\n5\n\n"
