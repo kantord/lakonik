@@ -37,8 +37,6 @@ pub fn format_cmd_result(code: &str, environment: &Environment) -> String {
 }
 
 pub fn extract_description(sentence: &Sentence, environment: &Environment) -> String {
-    
-
     sentence
         .parts
         .iter()
@@ -61,7 +59,6 @@ pub fn build_prompt(result: &Sentence) -> String {
     let template = environment
         .get_template(&format!("verbs/{}", &result.verb.name))
         .unwrap();
-    
 
     template.render(context).unwrap()
 }
