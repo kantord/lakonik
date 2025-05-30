@@ -1,0 +1,43 @@
+---
+source: src/parser.rs
+expression: sentence
+---
+type: sentence
+range:
+  start:
+    line: 1
+    offset: 0
+  end:
+    line: 1
+    offset: 23
+vocative:
+  type: vocative
+  range:
+    start:
+      line: 1
+      offset: 0
+    end:
+      line: 1
+      offset: 23
+  name: qwen3
+verb:
+  type: verb
+  range:
+    start:
+      line: 1
+      offset: 6
+    end:
+      line: 1
+      offset: 23
+  name: create
+parts:
+  - FilePath:
+      type: filepath
+      range:
+        start:
+          line: 1
+          offset: 13
+        end:
+          line: 1
+          offset: 23
+      path: hello.txt

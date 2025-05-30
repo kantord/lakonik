@@ -243,6 +243,10 @@ mod tests {
     #[case("bob123 fly")]
     #[case("john-doe123 run-fast")]
     #[case("john- run")]
+    #[case("qwen3 create @hello.txt")]
+    #[case("qwen3 edit @hello.txt foo")]
+    #[case("qwen3 edit foo @hello.txt bar")]
+    #[case("qwen3 delete bar @hello.txt")]
     fn parse_statement_snapshot(#[case] input: &str) {
         let mut s = insta::Settings::clone_current();
         s.set_snapshot_suffix(format!("{}", input.replace(' ', "_")));
