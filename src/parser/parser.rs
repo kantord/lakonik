@@ -6,48 +6,9 @@ use nom::combinator::{all_consuming, map, opt, recognize};
 use nom::multi::{many1, separated_list1};
 use nom::sequence::{delimited, preceded};
 use nom::{IResult, branch::alt};
-use nom_locate::LocatedSpan;
 use serde::Serialize;
 
-pub type Span<'a> = LocatedSpan<&'a str>;
-
-#[derive(Debug, PartialEq, Clone, Copy, Serialize)]
-pub struct SourcePosition {
-    pub line: u32,
-    pub offset: usize,
-}
-
-#[derive(Debug, PartialEq, Clone, Copy, Serialize)]
-pub struct SourceRange {
-    pub start: SourcePosition,
-    pub end: SourcePosition,
-}
-
-pub fn range(span: Span) -> SourceRange {
-    let start_offset = span.location_offset();
-    let start_line = span.location_line();
-
-    let mut end_offset = start_offset;
-    let mut end_line = start_line;
-
-    for ch in span.fragment().chars() {
-        end_offset += ch.len_utf8();
-        if ch == '\n' {
-            end_line += 1;
-        }
-    }
-
-    SourceRange {
-        start: SourcePosition {
-            line: start_line,
-            offset: start_offset,
-        },
-        end: SourcePosition {
-            line: end_line,
-            offset: end_offset,
-        },
-    }
-}
+use super::utils::{SourceRange, Span, range};
 
 /// Names the entity you are talking to
 #[derive(Debug, PartialEq, Serialize)]
