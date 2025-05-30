@@ -1,13 +1,14 @@
 use nom::Parser;
 use nom::bytes::complete::{tag, take_until, take_while1};
-use nom::character::complete::{alphanumeric1, char};
-use nom::character::complete::{multispace1, one_of};
-use nom::combinator::{all_consuming, map, opt, recognize};
-use nom::multi::{many1, separated_list1};
+use nom::character::complete::alphanumeric1;
+use nom::character::complete::multispace1;
+use nom::combinator::{all_consuming, map, opt};
+use nom::multi::separated_list1;
 use nom::sequence::{delimited, preceded};
 use nom::{IResult, branch::alt};
 use serde::Serialize;
 
+use super::primitives::lowercase_name;
 use super::utils::{SourceRange, Span, range};
 
 /// Names the entity you are talking to
@@ -66,34 +67,6 @@ pub struct Sentence {
     pub vocative: Vocative,
     pub verb: Verb,
     pub parts: Vec<Part>,
-}
-
-fn lowercase_char(input: Span) -> IResult<Span, char> {
-    one_of("abcdefghijklmnopqrstuvwxyz").parse(input)
-}
-
-fn digit(input: Span) -> IResult<Span, char> {
-    one_of("0123456789").parse(input)
-}
-
-fn lowercase_or_digit(input: Span) -> IResult<Span, char> {
-    alt((lowercase_char, digit)).parse(input)
-}
-
-fn dash(input: Span) -> IResult<Span, char> {
-    char('-').parse(input)
-}
-
-fn lowercase_name_char(input: Span) -> IResult<Span, char> {
-    alt((lowercase_or_digit, digit, dash)).parse(input)
-}
-
-fn lowercase_name_tail(input: Span) -> IResult<Span, Span> {
-    recognize(many1(lowercase_name_char)).parse(input)
-}
-
-fn lowercase_name(input: Span) -> IResult<Span, Span> {
-    recognize((lowercase_char, lowercase_name_tail)).parse(input)
 }
 
 fn vocative(input: Span) -> IResult<Span, Vocative> {
