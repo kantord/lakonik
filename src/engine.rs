@@ -88,7 +88,7 @@ pub struct FileAttachment {
 }
 
 #[derive(Debug, PartialEq, Serialize)]
-#[serde(tag = "type", rename_all = "lowercase")] 
+#[serde(tag = "type", rename_all = "lowercase")]
 pub enum Attachment {
     File(FileAttachment),
 }
