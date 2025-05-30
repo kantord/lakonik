@@ -248,7 +248,7 @@ mod tests {
     #[case("qwen3 edit foo @hello.txt bar")]
     #[case("qwen3 delete bar @hello.txt")]
     #[case("qwen3 delete @hello.txt")]
-    #[case("qwen3 create $(tree .)")]
+    #[case("qwen3 create $(  tree .)")]
     #[case("qwen3 edit $(ls) foo")]
     #[case("qwen3 edit foo $(find . | grep hello | grep py) bar")]
     #[case("qwen3 delete bar $(git diff)")]
