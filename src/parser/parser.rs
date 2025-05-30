@@ -1,4 +1,3 @@
-use insta::assert_yaml_snapshot;
 use nom::Parser;
 use nom::bytes::complete::{tag, take_until, take_while1};
 use nom::character::complete::{alphanumeric1, char};
@@ -234,6 +233,7 @@ pub fn parse_statement(input: Span) -> IResult<Span, Sentence> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use insta::assert_yaml_snapshot;
     use rstest::rstest;
 
     #[rstest]
