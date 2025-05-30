@@ -1,3 +1,4 @@
+use insta::assert_yaml_snapshot;
 use nom::Parser;
 use nom::bytes::complete::{tag, take_until, take_while1};
 use nom::character::complete::{alphanumeric1, char};
@@ -236,21 +237,20 @@ mod tests {
     use rstest::rstest;
 
     #[rstest]
-    #[case("john run", "john", "run")]
-    #[case("alice42 jump", "alice42", "jump")]
-    #[case("my-name jump-fast", "my-name", "jump-fast")]
-    #[case("bob123 fly", "bob123", "fly")]
-    #[case("john-doe123 run-fast", "john-doe123", "run-fast")]
-    #[case("john- run", "john-", "run")]
-    fn test_parse_statement_success(#[case] input: &str, #[case] voc: &str, #[case] verb: &str) {
-        let result = parse_statement(Span::new(input));
-
-        let (rest, sentence) = result.expect("parser should succeed");
+    #[case("john run")]
+    #[case("alice42 jump")]
+    #[case("my-name jump-fast")]
+    #[case("bob123 fly")]
+    #[case("john-doe123 run-fast")]
+    #[case("john- run")]
+    fn parse_statement_snapshot(#[case] input: &str) {
+        let mut s = insta::Settings::clone_current();
+        s.set_snapshot_suffix(format!("{}", input.replace(' ', "_")));
+        let _guard = s.bind_to_scope();
+        let (rest, sentence) = parse_statement(Span::new(input)).expect("parser should succeed");
         assert_eq!(*rest.fragment(), "");
 
-        assert_eq!(sentence.vocative.name, voc);
-        assert_eq!(sentence.verb.name, verb);
-        assert!(sentence.parts.is_empty());
+        assert_yaml_snapshot!(sentence);
     }
 
     #[rstest]
