@@ -1,0 +1,44 @@
+---
+source: src/ast/parser.rs
+assertion_line: 194
+expression: sentence
+---
+type: sentence
+range:
+  start:
+    line: 1
+    offset: 0
+  end:
+    line: 1
+    offset: 42
+vocative:
+  type: vocative
+  range:
+    start:
+      line: 1
+      offset: 0
+    end:
+      line: 1
+      offset: 42
+  name: qwen3
+verb:
+  type: verb
+  range:
+    start:
+      line: 1
+      offset: 6
+    end:
+      line: 1
+      offset: 42
+  name: summarize
+parts:
+  - InlineShell:
+      type: inline_shell
+      range:
+        start:
+          line: 1
+          offset: 16
+        end:
+          line: 1
+          offset: 42
+      code: "curl https://google.com"

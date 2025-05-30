@@ -1,5 +1,5 @@
 mod engine;
-mod parser;
+mod ast;
 mod templates;
 
 use anyhow::{Ok, Result};

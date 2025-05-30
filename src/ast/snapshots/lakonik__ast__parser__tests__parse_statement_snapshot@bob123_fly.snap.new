@@ -1,0 +1,34 @@
+---
+source: src/ast/parser.rs
+assertion_line: 194
+expression: sentence
+---
+type: sentence
+range:
+  start:
+    line: 1
+    offset: 0
+  end:
+    line: 1
+    offset: 10
+vocative:
+  type: vocative
+  range:
+    start:
+      line: 1
+      offset: 0
+    end:
+      line: 1
+      offset: 10
+  name: bob123
+verb:
+  type: verb
+  range:
+    start:
+      line: 1
+      offset: 7
+    end:
+      line: 1
+      offset: 10
+  name: fly
+parts: []

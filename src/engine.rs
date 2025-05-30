@@ -1,7 +1,7 @@
 use std::io::Read;
 
 use crate::{
-    parser::{Part, Sentence, Span, parse_statement},
+    ast::{Part, Sentence, Span, parse_statement},
     templates::build_environment,
 };
 use duct::cmd;

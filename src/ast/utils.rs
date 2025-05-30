@@ -1,5 +1,5 @@
-use nom_locate::LocatedSpan;
 use serde::Serialize;
+use nom_locate::LocatedSpan;
 
 pub type Span<'a> = LocatedSpan<&'a str>;
 
