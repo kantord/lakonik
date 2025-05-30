@@ -1,6 +1,5 @@
 ---
 source: src/ast/parser.rs
-assertion_line: 194
 expression: sentence
 ---
 type: sentence
@@ -10,7 +9,7 @@ range:
     offset: 0
   end:
     line: 1
-    offset: 24
+    offset: 23
 vocative:
   type: vocative
   range:
@@ -19,7 +18,7 @@ vocative:
       offset: 0
     end:
       line: 1
-      offset: 24
+      offset: 23
   name: qwen3
 verb:
   type: verb
@@ -29,16 +28,16 @@ verb:
       offset: 6
     end:
       line: 1
-      offset: 24
-  name: create
+      offset: 23
+  name: delete
 parts:
-  - InlineShell:
-      type: inline_shell
+  - FilePath:
+      type: filepath
       range:
         start:
           line: 1
           offset: 13
         end:
           line: 1
-          offset: 24
-      code: "  tree ."
+          offset: 23
+      path: hello.txt

@@ -1,6 +1,5 @@
 ---
 source: src/ast/parser.rs
-assertion_line: 194
 expression: sentence
 ---
 type: sentence
@@ -10,7 +9,7 @@ range:
     offset: 0
   end:
     line: 1
-    offset: 20
+    offset: 10
 vocative:
   type: vocative
   range:
@@ -19,16 +18,16 @@ vocative:
       offset: 0
     end:
       line: 1
-      offset: 20
-  name: john-doe123
+      offset: 10
+  name: bob123
 verb:
   type: verb
   range:
     start:
       line: 1
-      offset: 12
+      offset: 7
     end:
       line: 1
-      offset: 20
-  name: run-fast
+      offset: 10
+  name: fly
 parts: []

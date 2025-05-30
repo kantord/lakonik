@@ -1,6 +1,5 @@
 ---
 source: src/ast/parser.rs
-assertion_line: 194
 expression: sentence
 ---
 type: sentence
@@ -10,7 +9,7 @@ range:
     offset: 0
   end:
     line: 1
-    offset: 51
+    offset: 28
 vocative:
   type: vocative
   range:
@@ -19,7 +18,7 @@ vocative:
       offset: 0
     end:
       line: 1
-      offset: 51
+      offset: 28
   name: qwen3
 verb:
   type: verb
@@ -29,36 +28,26 @@ verb:
       offset: 6
     end:
       line: 1
-      offset: 51
-  name: edit
+      offset: 28
+  name: delete
 parts:
   - Freeform:
       type: freeform
       range:
         start:
           line: 1
-          offset: 11
+          offset: 13
         end:
           line: 1
-          offset: 51
-      text: foo
+          offset: 28
+      text: bar
   - InlineShell:
       type: inline_shell
       range:
         start:
           line: 1
-          offset: 15
+          offset: 17
         end:
           line: 1
-          offset: 51
-      code: find . | grep hello | grep py
-  - Freeform:
-      type: freeform
-      range:
-        start:
-          line: 1
-          offset: 48
-        end:
-          line: 1
-          offset: 51
-      text: bar
+          offset: 28
+      code: git diff
