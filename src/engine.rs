@@ -2,7 +2,7 @@ use std::io::Read;
 
 use crate::{
     parser::{Part, Sentence, Span, parse_statement},
-    verbs::build_environment,
+    templates::build_environment,
 };
 use duct::cmd;
 use minijinja::{Environment, context};

@@ -1,6 +1,6 @@
 mod engine;
 mod parser;
-mod verbs;
+mod templates;
 
 use anyhow::{Ok, Result};
 use clap::Parser as ClapParser;
