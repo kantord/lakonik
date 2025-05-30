@@ -103,7 +103,7 @@ fn filepath_part(input: Span) -> IResult<Span, FilePathPart> {
     let range = range(input);
 
     map(preceded(tag("@"), file_path), move |s: Span| FilePathPart {
-        range: range.clone(),
+        range,
         path: s.fragment().to_string(),
     })
     .parse(input)
@@ -124,9 +124,9 @@ fn inline_shell_part(input: Span) -> IResult<Span, InlineShellPart> {
 
 fn part(input: Span) -> IResult<Span, Part> {
     alt((
-        map(filepath_part, |p| Part::FilePath(p)),
-        map(freeform_part, |p| Part::Freeform(p)),
-        map(inline_shell_part, |p| Part::InlineShell(p)),
+        map(filepath_part, Part::FilePath),
+        map(freeform_part, Part::Freeform),
+        map(inline_shell_part, Part::InlineShell),
     ))
     .parse(input)
 }
@@ -186,7 +186,7 @@ mod tests {
     #[case("qwen3 summarize $(curl https://google.com)")]
     fn parse_statement_snapshot(#[case] input: &str) {
         let mut s = insta::Settings::clone_current();
-        s.set_snapshot_suffix(format!("{}", input.replace(' ', "_")));
+        s.set_snapshot_suffix(input.replace(' ', "_").to_string());
         let _guard = s.bind_to_scope();
         let (rest, sentence) = parse_statement(Span::new(input)).expect("parser should succeed");
         assert_eq!(*rest.fragment(), "");
