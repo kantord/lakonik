@@ -1,7 +1,7 @@
 use std::io::Read;
 
 use crate::{
-    parser::{Part, Sentence, Span, parse_statement},
+    ast::{Part, Sentence, Span, parse_statement},
     templates::build_environment,
 };
 use duct::cmd;
@@ -20,7 +20,7 @@ pub fn format_cmd_result(code: &str, environment: &Environment) -> String {
     let mut reader = cmd
         .stderr_to_stdout()
         .reader()
-        .expect(format!("could not run command: {}", code).as_str());
+        .unwrap_or_else(|_| panic!("could not run command: {}", code));
     let mut result = String::new();
 
     reader
@@ -37,33 +37,30 @@ pub fn format_cmd_result(code: &str, environment: &Environment) -> String {
 }
 
 pub fn extract_description(sentence: &Sentence, environment: &Environment) -> String {
-    let description = sentence
+    sentence
         .parts
         .iter()
         .filter_map(|part| match part {
             Part::Freeform(part) => Some(part.text.clone()),
-            Part::InlineShell(part) => Some(format_cmd_result(&part.code.as_str(), environment)),
+            Part::InlineShell(part) => Some(format_cmd_result(part.code.as_str(), environment)),
             _ => None,
         })
         .collect::<Vec<_>>()
-        .join(" ");
-
-    description
+        .join(" ")
 }
 
 pub fn build_prompt(result: &Sentence) -> String {
     let environment = build_environment();
 
-    let description = extract_description(&result, &environment);
+    let description = extract_description(result, &environment);
     let context = context! {
         description,
     };
     let template = environment
         .get_template(&format!("verbs/{}", &result.verb.name))
         .unwrap();
-    let prompt = template.render(context).unwrap();
 
-    prompt
+    template.render(context).unwrap()
 }
 
 pub fn extract_attachments(sentence: &Sentence) -> Vec<Attachment> {
@@ -88,7 +85,7 @@ pub struct FileAttachment {
 }
 
 #[derive(Debug, PartialEq, Serialize)]
-#[serde(tag = "type", rename_all = "lowercase")] 
+#[serde(tag = "type", rename_all = "lowercase")]
 pub enum Attachment {
     File(FileAttachment),
 }
@@ -105,9 +102,9 @@ pub fn run_prompt_builder(raw_input: &str) -> PromptBuilderResult {
     let prompt = build_prompt(&ast);
     let attachments = extract_attachments(&ast);
 
-    return PromptBuilderResult {
+    PromptBuilderResult {
         ast,
         attachments,
         prompt,
-    };
+    }
 }
