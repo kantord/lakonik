@@ -7,13 +7,13 @@ use async_lsp::panic::CatchUnwindLayer;
 use async_lsp::router::Router;
 use async_lsp::server::LifecycleLayer;
 use async_lsp::tracing::TracingLayer;
-use async_lsp::{ClientSocket, LanguageClient, LanguageServer, ResponseError};
+use async_lsp::{ClientSocket, LanguageServer, ResponseError};
 use futures::future::BoxFuture;
 use lsp_types::{
     DidChangeConfigurationParams, DidSaveTextDocumentParams, GotoDefinitionParams,
     GotoDefinitionResponse, Hover, HoverContents, HoverParams, HoverProviderCapability,
-    InitializeParams, InitializeResult, MarkedString, MessageType, OneOf, ServerCapabilities,
-    ShowMessageParams, TextDocumentSyncCapability, TextDocumentSyncKind,
+    InitializeParams, InitializeResult, MarkedString, OneOf, ServerCapabilities,
+    TextDocumentSyncCapability, TextDocumentSyncKind,
     notification::{
         DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, DidSaveTextDocument,
     },
@@ -22,7 +22,7 @@ use tower::ServiceBuilder;
 use tracing::{Level, info};
 
 struct ServerState {
-    client: ClientSocket,
+    _client: ClientSocket,
     counter: i32,
 }
 
@@ -38,9 +38,6 @@ impl LanguageServer for ServerState {
         Box::pin(async move {
             Ok(InitializeResult {
                 capabilities: ServerCapabilities {
-                    // Tell the client we support incremental syncing.
-                    // This prevents Neovim from sending unwanted `didSave` events
-                    // unless the buffer is really saved.
                     text_document_sync: Some(TextDocumentSyncCapability::Kind(
                         TextDocumentSyncKind::INCREMENTAL,
                     )),
@@ -55,20 +52,8 @@ impl LanguageServer for ServerState {
     }
 
     fn hover(&mut self, _: HoverParams) -> BoxFuture<'static, Result<Option<Hover>, Self::Error>> {
-        let mut client = self.client.clone();
         let counter = self.counter;
         Box::pin(async move {
-            // Simulate some asynchronous work…
-            tokio::time::sleep(Duration::from_secs(1)).await;
-
-            // Pop up an info message in the editor
-            client
-                .show_message(ShowMessageParams {
-                    typ: MessageType::INFO,
-                    message: "Hello LSP".into(),
-                })
-                .unwrap();
-
             Ok(Some(Hover {
                 contents: HoverContents::Scalar(MarkedString::String(format!(
                     "I am a hover text {counter}!"
@@ -99,12 +84,8 @@ impl ServerState {
     fn new_router(client: ClientSocket) -> Router<Self> {
         let mut router = Router::from_language_server(Self { client, counter: 0 });
 
-        // 1) Our recurring tick event:
         router.event(Self::on_tick);
 
-        // 2) No‐op handlers for all of Neovim’s default notifications:
-        //    If you don’t register these, the router will panic on “Unexpected resource…”
-        //    or “Trying to close not opened document…” whenever Neovim opens/edits/closes a buffer.
         router.notification::<DidOpenTextDocument>(Self::on_did_open);
         router.notification::<DidChangeTextDocument>(Self::on_did_change);
         router.notification::<DidSaveTextDocument>(Self::on_did_save);
@@ -119,7 +100,6 @@ impl ServerState {
         ControlFlow::Continue(())
     }
 
-    // All of these are no‐ops, just return Continue so we don’t panic:
     fn on_did_open(
         &mut self,
         _params: lsp_types::DidOpenTextDocumentParams,
