@@ -115,10 +115,14 @@ impl ServerState {
         params: lsp_types::DidOpenTextDocumentParams,
     ) -> ControlFlow<async_lsp::Result<()>> {
         let text = params.text_document.text.clone();
-        let ast = parse(&text);
-        let analyzed = ast.analyze(&mut AnalysisContext {});
-        self.docs
-            .insert(params.text_document.uri, DocumentState { analyzed });
+        if let Some(ast) = parse(&text) {
+            let analyzed = ast.analyze(&mut AnalysisContext {});
+            self.docs
+                .insert(params.text_document.uri, DocumentState { analyzed });
+        } else {
+            self.docs.remove(&params.text_document.uri);
+            tracing::warn!("Could not parse document: {}", params.text_document.uri);
+        }
         ControlFlow::Continue(())
     }
 
@@ -126,13 +130,16 @@ impl ServerState {
         &mut self,
         params: lsp_types::DidChangeTextDocumentParams,
     ) -> ControlFlow<async_lsp::Result<()>> {
-        // Support incremental changes, but for simplicity, we reparse whole text.
         if let Some(change) = params.content_changes.into_iter().last() {
             let text = change.text;
-            let ast = parse(&text);
-            let analyzed = ast.analyze(&mut AnalysisContext {});
-            self.docs
-                .insert(params.text_document.uri, DocumentState { analyzed });
+            if let Some(ast) = parse(&text) {
+                let analyzed = ast.analyze(&mut AnalysisContext {});
+                self.docs
+                    .insert(params.text_document.uri, DocumentState { analyzed });
+            } else {
+                self.docs.remove(&params.text_document.uri);
+                tracing::warn!("Could not parse document: {}", params.text_document.uri);
+            }
         }
         ControlFlow::Continue(())
     }
