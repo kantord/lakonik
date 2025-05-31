@@ -10,9 +10,13 @@ use async_lsp::tracing::TracingLayer;
 use async_lsp::{ClientSocket, LanguageClient, LanguageServer, ResponseError};
 use futures::future::BoxFuture;
 use lsp_types::{
-    DidChangeConfigurationParams, GotoDefinitionParams, GotoDefinitionResponse, Hover,
-    HoverContents, HoverParams, HoverProviderCapability, InitializeParams, InitializeResult,
-    MarkedString, MessageType, OneOf, ServerCapabilities, ShowMessageParams,
+    DidChangeConfigurationParams, DidSaveTextDocumentParams, GotoDefinitionParams,
+    GotoDefinitionResponse, Hover, HoverContents, HoverParams, HoverProviderCapability,
+    InitializeParams, InitializeResult, MarkedString, MessageType, OneOf, ServerCapabilities,
+    ShowMessageParams, TextDocumentSyncCapability, TextDocumentSyncKind,
+    notification::{
+        DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, DidSaveTextDocument,
+    },
 };
 use tower::ServiceBuilder;
 use tracing::{Level, info};
@@ -34,6 +38,13 @@ impl LanguageServer for ServerState {
         Box::pin(async move {
             Ok(InitializeResult {
                 capabilities: ServerCapabilities {
+                    // Tell the client we support incremental syncing.
+                    // This prevents Neovim from sending unwanted `didSave` events
+                    // unless the buffer is really saved.
+                    text_document_sync: Some(TextDocumentSyncCapability::Kind(
+                        TextDocumentSyncKind::INCREMENTAL,
+                    )),
+
                     hover_provider: Some(HoverProviderCapability::Simple(true)),
                     definition_provider: Some(OneOf::Left(true)),
                     ..ServerCapabilities::default()
@@ -47,13 +58,17 @@ impl LanguageServer for ServerState {
         let mut client = self.client.clone();
         let counter = self.counter;
         Box::pin(async move {
+            // Simulate some asynchronous work…
             tokio::time::sleep(Duration::from_secs(1)).await;
+
+            // Pop up an info message in the editor
             client
                 .show_message(ShowMessageParams {
                     typ: MessageType::INFO,
                     message: "Hello LSP".into(),
                 })
                 .unwrap();
+
             Ok(Some(Hover {
                 contents: HoverContents::Scalar(MarkedString::String(format!(
                     "I am a hover text {counter}!"
@@ -83,13 +98,53 @@ struct TickEvent;
 impl ServerState {
     fn new_router(client: ClientSocket) -> Router<Self> {
         let mut router = Router::from_language_server(Self { client, counter: 0 });
+
+        // 1) Our recurring tick event:
         router.event(Self::on_tick);
+
+        // 2) No‐op handlers for all of Neovim’s default notifications:
+        //    If you don’t register these, the router will panic on “Unexpected resource…”
+        //    or “Trying to close not opened document…” whenever Neovim opens/edits/closes a buffer.
+        router.notification::<DidOpenTextDocument>(Self::on_did_open);
+        router.notification::<DidChangeTextDocument>(Self::on_did_change);
+        router.notification::<DidSaveTextDocument>(Self::on_did_save);
+        router.notification::<DidCloseTextDocument>(Self::on_did_close);
+
         router
     }
 
     fn on_tick(&mut self, _: TickEvent) -> ControlFlow<async_lsp::Result<()>> {
         info!("tick");
         self.counter += 1;
+        ControlFlow::Continue(())
+    }
+
+    // All of these are no‐ops, just return Continue so we don’t panic:
+    fn on_did_open(
+        &mut self,
+        _params: lsp_types::DidOpenTextDocumentParams,
+    ) -> ControlFlow<async_lsp::Result<()>> {
+        ControlFlow::Continue(())
+    }
+
+    fn on_did_change(
+        &mut self,
+        _params: lsp_types::DidChangeTextDocumentParams,
+    ) -> ControlFlow<async_lsp::Result<()>> {
+        ControlFlow::Continue(())
+    }
+
+    fn on_did_save(
+        &mut self,
+        _params: DidSaveTextDocumentParams,
+    ) -> ControlFlow<async_lsp::Result<()>> {
+        ControlFlow::Continue(())
+    }
+
+    fn on_did_close(
+        &mut self,
+        _params: lsp_types::DidCloseTextDocumentParams,
+    ) -> ControlFlow<async_lsp::Result<()>> {
         ControlFlow::Continue(())
     }
 }
