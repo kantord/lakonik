@@ -130,7 +130,7 @@ impl ServerState {
         &mut self,
         params: lsp_types::DidChangeTextDocumentParams,
     ) -> ControlFlow<async_lsp::Result<()>> {
-        if let Some(change) = params.content_changes.into_iter().last() {
+        if let Some(change) = params.content_changes.into_iter().next_back() {
             let text = change.text;
             if let Some(ast) = parse(&text) {
                 let analyzed = ast.analyze(&mut AnalysisContext {});
