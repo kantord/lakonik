@@ -6,29 +6,29 @@ type: sentence
 range:
   start:
     line: 1
-    offset: 0
+    character: 0
   end:
     line: 1
-    offset: 24
+    character: 24
 vocative:
   type: vocative
   range:
     start:
       line: 1
-      offset: 0
+      character: 0
     end:
       line: 1
-      offset: 24
+      character: 24
   name: qwen3
 verb:
   type: verb
   range:
     start:
       line: 1
-      offset: 6
+      character: 6
     end:
       line: 1
-      offset: 24
+      character: 24
   name: create
 parts:
   - InlineShell:
@@ -36,8 +36,8 @@ parts:
       range:
         start:
           line: 1
-          offset: 13
+          character: 13
         end:
           line: 1
-          offset: 24
+          character: 24
       code: "  tree ."

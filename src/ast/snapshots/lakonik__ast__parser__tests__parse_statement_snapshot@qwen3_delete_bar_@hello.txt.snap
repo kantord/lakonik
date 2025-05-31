@@ -6,29 +6,29 @@ type: sentence
 range:
   start:
     line: 1
-    offset: 0
+    character: 0
   end:
     line: 1
-    offset: 27
+    character: 27
 vocative:
   type: vocative
   range:
     start:
       line: 1
-      offset: 0
+      character: 0
     end:
       line: 1
-      offset: 27
+      character: 27
   name: qwen3
 verb:
   type: verb
   range:
     start:
       line: 1
-      offset: 6
+      character: 6
     end:
       line: 1
-      offset: 27
+      character: 27
   name: delete
 parts:
   - Freeform:
@@ -36,18 +36,18 @@ parts:
       range:
         start:
           line: 1
-          offset: 13
+          character: 13
         end:
           line: 1
-          offset: 27
+          character: 27
       text: bar
   - FilePath:
       type: filepath
       range:
         start:
           line: 1
-          offset: 17
+          character: 17
         end:
           line: 1
-          offset: 27
+          character: 27
       path: hello.txt
