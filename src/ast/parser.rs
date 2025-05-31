@@ -13,47 +13,47 @@ use super::primitives::{file_path, lowercase_name};
 use super::utils::{Span, range};
 
 /// Names the entity you are talking to
-#[derive(Debug, PartialEq, Serialize)]
+#[derive(Debug, PartialEq, Serialize, Clone)]
 #[serde(tag = "type", rename = "vocative")]
 pub struct Vocative {
-    range: Range,
+    pub range: Range,
     pub name: String,
 }
 
 /// Verbs are actions/capabilities the entity is expected to perform
-#[derive(Debug, PartialEq, Serialize)]
+#[derive(Debug, PartialEq, Serialize, Clone)]
 #[serde(tag = "type", rename = "verb")]
 pub struct Verb {
-    range: Range,
+    pub range: Range,
     pub name: String,
 }
 
 /// Contains free-from text
-#[derive(Debug, PartialEq, Serialize)]
+#[derive(Debug, PartialEq, Serialize, Clone)]
 #[serde(tag = "type", rename = "freeform")]
 pub struct FreeformPart {
-    range: Range,
+    pub range: Range,
     pub text: String,
 }
 
 /// Contains a file path
-#[derive(Debug, PartialEq, Serialize)]
+#[derive(Debug, PartialEq, Serialize, Clone)]
 #[serde(tag = "type", rename = "filepath")]
 pub struct FilePathPart {
-    range: Range,
+    pub range: Range,
     pub path: String,
 }
 
 /// Contains an inline shell script
-#[derive(Debug, PartialEq, Serialize)]
+#[derive(Debug, PartialEq, Serialize, Clone)]
 #[serde(tag = "type", rename = "inline_shell")]
 pub struct InlineShellPart {
-    range: Range,
+    pub range: Range,
     pub code: String,
 }
 
 /// Generic parts that can contain objects or free form text
-#[derive(Debug, PartialEq, Serialize)]
+#[derive(Debug, PartialEq, Serialize, Clone)]
 pub enum Part {
     Freeform(FreeformPart),
     FilePath(FilePathPart),
@@ -61,10 +61,10 @@ pub enum Part {
 }
 
 /// The fully-parsed sentence. Describes a prompt.
-#[derive(Debug, PartialEq, Serialize)]
+#[derive(Debug, PartialEq, Serialize, Clone)]
 #[serde(tag = "type", rename = "sentence")]
 pub struct Sentence {
-    range: Range,
+    pub range: Range,
     pub vocative: Vocative,
     pub verb: Verb,
     pub parts: Vec<Part>,

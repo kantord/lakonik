@@ -41,7 +41,7 @@ pub fn extract_description(sentence: &AnalyzedSentence, environment: &Environmen
     sentence
         .parts
         .iter()
-        .filter_map(|part| match part.node {
+        .filter_map(|part| match &part.node {
             Part::Freeform(part) => Some(part.text.clone()),
             Part::InlineShell(part) => Some(format_cmd_result(part.code.as_str(), environment)),
             _ => None,

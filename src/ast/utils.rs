@@ -28,3 +28,16 @@ pub fn range(span: Span) -> Range {
         },
     }
 }
+
+pub trait RangeContainsPosition {
+    fn contains_position(&self, pos: &Position) -> bool;
+}
+
+impl RangeContainsPosition for Range {
+    fn contains_position(&self, pos: &Position) -> bool {
+        (self.start.line < pos.line
+            || (self.start.line == pos.line && self.start.character <= pos.character))
+            && (pos.line < self.end.line
+                || (pos.line == self.end.line && pos.character < self.end.character))
+    }
+}
