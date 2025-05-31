@@ -1,10 +1,12 @@
 mod ast;
 mod engine;
+mod lsp;
 mod templates;
 
 use anyhow::{Ok, Result};
 use clap::{Parser, Subcommand};
 use engine::run_prompt_builder;
+use lsp::run_lsp_server;
 
 #[derive(Parser, Debug)]
 #[command(name = "lakonik", version, about, trailing_var_arg = true)]
@@ -39,7 +41,7 @@ async fn main() -> Result<()> {
             cmd_eval(*verbose, input).await?;
         }
         Commands::Lsp {} => {
-            cmd_lsp();
+            cmd_lsp().await;
         }
     }
 
@@ -59,6 +61,6 @@ async fn cmd_eval(verbose: bool, input: &Vec<String>) -> Result<()> {
     Ok(())
 }
 
-fn cmd_lsp() {
-    println!("hello world");
+async fn cmd_lsp() {
+    run_lsp_server().await;
 }

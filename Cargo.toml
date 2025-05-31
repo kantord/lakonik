@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 anyhow = "1.0.98"
+async-lsp = { version = "0.2.2", features = ["omni-trait", "stdio", "tracing"] }
 clap = { version = "4.5.38", features = ["derive"] }
 dirs = "5.0.1"
 duct = "1.0.0"
@@ -17,11 +18,18 @@ serde = { version = "1.0.197", features = ["derive"] }
 serde_json = "1.0.140"
 tempfile = "3.10.1"
 tokio = { version = "1.45.0", features = ["full"] }
+tower = "0.5.2"
+tracing = "0.1.41"
 walkdir = "2.5.0"
+futures = { version = "0.3.28", default-features = false, features = ["async-await", "std"] }
+lsp-types = "0.95.0"
+tracing-subscriber = "0.3.19"
+tokio-util = { version = "0.7.15", features = ["compat"] }
 
 [dev-dependencies]
 insta = { version = "1.43.1", features = ["yaml"] }
 rstest = "0.25.0"
+tracing = "0.1.41"
 
 [profile.dev.package]
 insta.opt-level = 3
