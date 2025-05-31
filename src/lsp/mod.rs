@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::ops::ControlFlow;
 
 use crate::ast::utils::RangeContainsPosition;
+use crate::ast::{Sentence, Span, parse_statement};
 use crate::hir::AnalysisContext;
 use async_lsp::client_monitor::ClientProcessMonitorLayer;
 use async_lsp::concurrency::ConcurrencyLayer;
@@ -22,7 +23,6 @@ use lsp_types::{
 use tower::ServiceBuilder;
 use tracing::Level;
 
-use crate::engine::parse;
 use crate::hir::{Analyzable, AnalyzedSentence};
 
 struct DocumentState {
@@ -155,6 +155,13 @@ impl ServerState {
 }
 
 // --- Main entrypoint ---
+//
+//
+
+pub fn parse(input: &str) -> Option<Sentence> {
+    let span = Span::new(input);
+    parse_statement(span).ok().map(|(_, sentence)| sentence)
+}
 
 pub async fn run_lsp_server() {
     let (server, _) = async_lsp::MainLoop::new_server(|client| {
