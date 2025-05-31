@@ -44,8 +44,7 @@ lspconfig.lakonik.setup {}
 EOF
 
 NEWFILE="$(mktemp "${SCRIPT_DIR}/lakonik_XXXX.lk")"
-FILE_ARGS=("$NEWFILE")
 
-nvim -u "$TMP_INIT" "${FILE_ARGS[@]}"
+nvim -u "$TMP_INIT" "$NEWFILE"
 rm -f "$TMP_INIT"
 rm -f "$NEWFILE"
