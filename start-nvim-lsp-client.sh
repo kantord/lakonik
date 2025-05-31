@@ -7,11 +7,14 @@
 #   1. cd into the project directory
 #   2. write a tiny “init.lua” that:
 #        • sources your normal ~/.config/nvim/init.lua
+#        • defines an autocmd so that *.lk files become filetype=lakonik
 #        • explicitly requires `lspconfig.configs` and then registers
-#          a custom server “rust_custom” whose cmd = { "cargo", "run", "--", "lsp" }
-#          and filetypes = { "rust" }
-#   3. launch nvim with -u pointing at that temporary init.lua
-#   4. delete that temp file once Neovim exits
+#          a custom server “lakonik” whose cmd = { "cargo", "run", "--", "lsp" }
+#          and filetypes = { "lakonik" }
+#   3. if you did not pass any filename, create a new temp file ending in .lk
+#      in the project root and open it; otherwise open the file(s) you passed
+#   4. launch nvim with -u pointing at that temporary init.lua
+#   5. delete that temp init.lua once Neovim exits
 #
 
 # 1) Ensure we’re in the project root
@@ -24,10 +27,11 @@ cat > "$TMP_INIT" << 'EOF'
 -- ──────────────────────────────────────────────────────────────────────────
 -- Tiny init.lua that:
 --   a) Loads your normal ~/.config/nvim/init.lua
---   b) Explicitly requires `lspconfig.configs` so we can register a custom server
---   c) Defines “rust_custom” → { default_config = { cmd = { "cargo", "run", "--", "lsp" }, … } }
---   d) Calls `rust_custom.setup{}` so that Neovim’s LSP client will auto‐attach
---      whenever you open a Rust file.
+--   b) Sets up an autocmd so that *.lk → filetype=lakonik
+--   c) Explicitly requires `lspconfig.configs` so we can register a custom server
+--   d) Defines “lakonik” → { default_config = { cmd = { "cargo", "run", "--", "lsp" }, … } }
+--   e) Calls `lakonik.setup{}` so that Neovim’s LSP client will auto‐attach
+--      whenever you open a file with filetype “lakonik”.
 -- ──────────────────────────────────────────────────────────────────────────
 
 -- 1) Source your regular init.lua (so your plugins/keymaps carry over)
@@ -39,7 +43,15 @@ if not ok then
   print("[project-lsp] Warning: could not load your normal init.lua")
 end
 
--- 2) Require the core 'lspconfig' and also explicitly grab 'lspconfig.configs'
+-- 2) Autocmd so that *.lk files become filetype=lakonik
+vim.cmd [[
+  augroup FTLakonik
+    autocmd!
+    autocmd BufRead,BufNewFile *.lk setfiletype lakonik
+  augroup END
+]]
+
+-- 3) Require the core 'lspconfig' and also explicitly grab 'lspconfig.configs'
 --    so we can register a custom server definition.
 local lspconfig_ok, lspconfig = pcall(require, "lspconfig")
 if not lspconfig_ok then
@@ -54,32 +66,43 @@ if not configs_ok then
   return
 end
 
--- 3) Define our custom server under `lspconfig.configs`
---    (so that `lspconfig.rust_custom.setup{}` becomes valid)
-configs.lakonik_debug = {
+-- 4) Define our custom server under `lspconfig.configs`
+--    (so that `lspconfig.lakonik.setup{}` becomes valid)
+configs.lakonik = {
   default_config = {
     cmd = { "cargo", "run", "--", "lsp" },
-    filetypes = { "rust" },
+    filetypes = { "lakonik" },
     root_dir = lspconfig.util.root_pattern("Cargo.toml", ".git"),
     -- you can add more fields here if needed, e.g.:
-    -- settings = { ... }, root_dir, etc.
+    -- settings = { ... }, etc.
   },
 }
 
--- 4) Actually call setup so that Neovim attaches it on any Rust buffer
-lspconfig.lakonik_debug.setup {}
+-- 5) Actually call setup so that Neovim attaches it on any buffer with filetype “lakonik”
+lspconfig.lakonik.setup {}
 
 -- (Optional) If you want to customize on_attach / capabilities, you could do:
--- lspconfig.rust_custom.setup {
+-- lspconfig.lakonik.setup {
 --   on_attach = function(client, bufnr) … end,
 --   capabilities = require("cmp_nvim_lsp").default_capabilities(),
 -- }
 
 EOF
 
-# 3) Launch nvim with our temp init.lua (forward any filename args)
-nvim -u "$TMP_INIT" "$@"
+# 3) Determine which file(s) to open:
+if [ $# -eq 0 ]; then
+  # No filename passed → create a new .lk file in the project root
+  NEWFILE="$(mktemp "${PWD}/lakonik_XXXX.lk")"
+  touch "$NEWFILE"
+  FILE_ARGS=("$NEWFILE")
+else
+  # Forward any passed arguments verbatim
+  FILE_ARGS=("$@")
+fi
 
-# 4) Cleanup the temp init.lua when Neovim exits
+# 4) Launch Neovim with our temp init.lua, opening the desired file(s)
+nvim -u "$TMP_INIT" "${FILE_ARGS[@]}"
+
+# 5) Cleanup the temp init.lua when Neovim exits
 rm -f "$TMP_INIT"
 
