@@ -54,7 +54,7 @@ impl LanguageServer for ServerState {
         Box::pin(async move {
             Ok(Some(Hover {
                 contents: HoverContents::Scalar(MarkedString::String(format!(
-                    "I am a hover text {counter}!"
+                    "I am a dummy hover {counter}!"
                 ))),
                 range: None,
             }))
