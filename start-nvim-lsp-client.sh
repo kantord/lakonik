@@ -1,10 +1,10 @@
 
 #!/usr/bin/env bash
 #
-# start-rust-lsp.sh
+# start-nvim-lsp-client.sh
 #
 # Place this in your Rust project root. It will:
-#   1. cd into the project directory
+#   1. cd into the directory where this script lives (your project root)
 #   2. write a tiny “init.lua” that:
 #        • sources your normal ~/.config/nvim/init.lua
 #        • defines an autocmd so that *.lk files become filetype=lakonik
@@ -12,13 +12,15 @@
 #          a custom server “lakonik” whose cmd = { "cargo", "run", "--", "lsp" }
 #          and filetypes = { "lakonik" }
 #   3. if you did not pass any filename, create a new temp file ending in .lk
-#      in the project root and open it; otherwise open the file(s) you passed
+#      in the same directory (using mktemp) and open it; otherwise open the file(s)
+#      you passed as arguments
 #   4. launch nvim with -u pointing at that temporary init.lua
 #   5. delete that temp init.lua once Neovim exits
 #
 
-# 1) Ensure we’re in the project root
-cd "$(dirname "$0")" || exit 1
+# 1) Ensure we’re in the directory where this script lives:
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR" || exit 1
 
 # 2) Create a temporary init.lua in /tmp
 TMP_INIT="$(mktemp /tmp/nvim_project_lsp_XXXX.lua)"
@@ -89,20 +91,10 @@ lspconfig.lakonik.setup {}
 
 EOF
 
-# 3) Determine which file(s) to open:
-if [ $# -eq 0 ]; then
-  # No filename passed → create a new .lk file in the project root
-  NEWFILE="$(mktemp "${PWD}/lakonik_XXXX.lk")"
-  touch "$NEWFILE"
-  FILE_ARGS=("$NEWFILE")
-else
-  # Forward any passed arguments verbatim
-  FILE_ARGS=("$@")
-fi
+NEWFILE="$(mktemp "${SCRIPT_DIR}/lakonik_XXXX.lk")"
+FILE_ARGS=("$NEWFILE")
 
-# 4) Launch Neovim with our temp init.lua, opening the desired file(s)
 nvim -u "$TMP_INIT" "${FILE_ARGS[@]}"
-
-# 5) Cleanup the temp init.lua when Neovim exits
 rm -f "$TMP_INIT"
+rm -f "$NEWFILE"
 
