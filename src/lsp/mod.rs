@@ -1,5 +1,4 @@
 use std::ops::ControlFlow;
-use std::time::Duration;
 
 use async_lsp::client_monitor::ClientProcessMonitorLayer;
 use async_lsp::concurrency::ConcurrencyLayer;
@@ -10,8 +9,8 @@ use async_lsp::tracing::TracingLayer;
 use async_lsp::{ClientSocket, LanguageServer, ResponseError};
 use futures::future::BoxFuture;
 use lsp_types::{
-    DidChangeConfigurationParams, DidSaveTextDocumentParams, GotoDefinitionParams,
-    GotoDefinitionResponse, Hover, HoverContents, HoverParams, HoverProviderCapability,
+    DidChangeConfigurationParams, DidSaveTextDocumentParams, 
+     Hover, HoverContents, HoverParams, HoverProviderCapability,
     InitializeParams, InitializeResult, MarkedString, OneOf, ServerCapabilities,
     TextDocumentSyncCapability, TextDocumentSyncKind,
     notification::{
@@ -19,7 +18,7 @@ use lsp_types::{
     },
 };
 use tower::ServiceBuilder;
-use tracing::{Level, info};
+use tracing::Level;
 
 struct ServerState {
     _client: ClientSocket,
@@ -43,7 +42,6 @@ impl LanguageServer for ServerState {
                     )),
 
                     hover_provider: Some(HoverProviderCapability::Simple(true)),
-                    definition_provider: Some(OneOf::Left(true)),
                     ..ServerCapabilities::default()
                 },
                 server_info: None,
@@ -63,12 +61,7 @@ impl LanguageServer for ServerState {
         })
     }
 
-    fn definition(
-        &mut self,
-        _: GotoDefinitionParams,
-    ) -> BoxFuture<'static, Result<Option<GotoDefinitionResponse>, ResponseError>> {
-        unimplemented!("Not yet implemented!");
-    }
+
 
     fn did_change_configuration(
         &mut self,
