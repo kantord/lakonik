@@ -1,7 +1,7 @@
 use include_dir::{Dir, include_dir};
 use minijinja::Environment;
 
-static BUILT_IN_TEMPLATES_DIR: Dir = include_dir!("$CARGO_MANIFEST_DIR/templates");
+static BUILT_IN_TEMPLATES_DIR: Dir = include_dir!("$CARGO_MANIFEST_DIR/src/templates/built_in");
 
 pub struct Template {
     pub path: String,
