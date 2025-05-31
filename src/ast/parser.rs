@@ -1,3 +1,4 @@
+use lsp_types::Range;
 use nom::Parser;
 use nom::bytes::complete::{tag, take_until};
 use nom::character::complete::multispace1;
@@ -9,13 +10,13 @@ use nom::{IResult, branch::alt};
 use serde::Serialize;
 
 use super::primitives::{file_path, lowercase_name};
-use super::utils::{SourceRange, Span, range};
+use super::utils::{Span, range};
 
 /// Names the entity you are talking to
 #[derive(Debug, PartialEq, Serialize)]
 #[serde(tag = "type", rename = "vocative")]
 pub struct Vocative {
-    range: SourceRange,
+    range: Range,
     pub name: String,
 }
 
@@ -23,7 +24,7 @@ pub struct Vocative {
 #[derive(Debug, PartialEq, Serialize)]
 #[serde(tag = "type", rename = "verb")]
 pub struct Verb {
-    range: SourceRange,
+    range: Range,
     pub name: String,
 }
 
@@ -31,7 +32,7 @@ pub struct Verb {
 #[derive(Debug, PartialEq, Serialize)]
 #[serde(tag = "type", rename = "freeform")]
 pub struct FreeformPart {
-    range: SourceRange,
+    range: Range,
     pub text: String,
 }
 
@@ -39,7 +40,7 @@ pub struct FreeformPart {
 #[derive(Debug, PartialEq, Serialize)]
 #[serde(tag = "type", rename = "filepath")]
 pub struct FilePathPart {
-    range: SourceRange,
+    range: Range,
     pub path: String,
 }
 
@@ -47,7 +48,7 @@ pub struct FilePathPart {
 #[derive(Debug, PartialEq, Serialize)]
 #[serde(tag = "type", rename = "inline_shell")]
 pub struct InlineShellPart {
-    range: SourceRange,
+    range: Range,
     pub code: String,
 }
 
@@ -63,7 +64,7 @@ pub enum Part {
 #[derive(Debug, PartialEq, Serialize)]
 #[serde(tag = "type", rename = "sentence")]
 pub struct Sentence {
-    range: SourceRange,
+    range: Range,
     pub vocative: Vocative,
     pub verb: Verb,
     pub parts: Vec<Part>,
