@@ -6,29 +6,29 @@ type: sentence
 range:
   start:
     line: 0
-    offset: 0
+    character: 0
   end:
     line: 0
-    offset: 42
+    character: 42
 vocative:
   type: vocative
   range:
     start:
       line: 0
-      offset: 0
+      character: 0
     end:
       line: 0
-      offset: 5
+      character: 5
   name: qwen3
 verb:
   type: verb
   range:
     start:
       line: 0
-      offset: 6
+      character: 6
     end:
       line: 0
-      offset: 15
+      character: 15
   name: summarize
 parts:
   - InlineShell:
@@ -36,8 +36,8 @@ parts:
       range:
         start:
           line: 0
-          offset: 18
+          character: 18
         end:
           line: 0
-          offset: 41
+          character: 41
       code: "curl https://google.com"

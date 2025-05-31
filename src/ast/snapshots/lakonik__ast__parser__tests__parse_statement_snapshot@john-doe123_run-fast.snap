@@ -6,28 +6,28 @@ type: sentence
 range:
   start:
     line: 0
-    offset: 0
+    character: 0
   end:
     line: 0
-    offset: 20
+    character: 20
 vocative:
   type: vocative
   range:
     start:
       line: 0
-      offset: 0
+      character: 0
     end:
       line: 0
-      offset: 11
+      character: 11
   name: john-doe123
 verb:
   type: verb
   range:
     start:
       line: 0
-      offset: 12
+      character: 12
     end:
       line: 0
-      offset: 20
+      character: 20
   name: run-fast
 parts: []

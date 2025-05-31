@@ -1,18 +1,13 @@
+use lsp_types::Position;
 use nom_locate::LocatedSpan;
 use serde::Serialize;
 
 pub type Span<'a> = LocatedSpan<&'a str>;
 
 #[derive(Debug, PartialEq, Clone, Copy, Serialize)]
-pub struct SourcePosition {
-    pub line: u32,
-    pub offset: usize,
-}
-
-#[derive(Debug, PartialEq, Clone, Copy, Serialize)]
 pub struct SourceRange {
-    pub start: SourcePosition,
-    pub end: SourcePosition,
+    pub start: Position,
+    pub end: Position,
 }
 
 pub fn range(span: Span) -> SourceRange {
@@ -30,13 +25,13 @@ pub fn range(span: Span) -> SourceRange {
     }
 
     SourceRange {
-        start: SourcePosition {
+        start: Position {
             line: start_line - 1,
-            offset: start_offset,
+            character: start_offset as u32,
         },
-        end: SourcePosition {
+        end: Position {
             line: end_line - 1,
-            offset: end_offset,
+            character: end_offset as u32,
         },
     }
 }

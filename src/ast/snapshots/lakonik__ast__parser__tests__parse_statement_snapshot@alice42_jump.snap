@@ -6,28 +6,28 @@ type: sentence
 range:
   start:
     line: 0
-    offset: 0
+    character: 0
   end:
     line: 0
-    offset: 12
+    character: 12
 vocative:
   type: vocative
   range:
     start:
       line: 0
-      offset: 0
+      character: 0
     end:
       line: 0
-      offset: 7
+      character: 7
   name: alice42
 verb:
   type: verb
   range:
     start:
       line: 0
-      offset: 8
+      character: 8
     end:
       line: 0
-      offset: 12
+      character: 12
   name: jump
 parts: []
