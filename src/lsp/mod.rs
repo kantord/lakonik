@@ -82,7 +82,10 @@ struct TickEvent;
 
 impl ServerState {
     fn new_router(client: ClientSocket) -> Router<Self> {
-        let mut router = Router::from_language_server(Self { client, counter: 0 });
+        let mut router = Router::from_language_server(Self {
+            _client: client,
+            counter: 0,
+        });
 
         router.event(Self::on_tick);
 
