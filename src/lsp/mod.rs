@@ -124,14 +124,6 @@ pub async fn run_lsp_server() {
         .with_writer(std::io::stderr)
         .init();
 
-    // // Prefer truly asynchronous piped stdin/stdout without blocking tasks.
-    // #[cfg(unix)]
-    // let (stdin, stdout) = (
-    //     async_lsp::stdio::PipeStdin::lock_tokio().unwrap(),
-    //     async_lsp::stdio::PipeStdout::lock_tokio().unwrap(),
-    // );
-    // Fallback to spawn blocking read/write otherwise.
-    // #[cfg(not(unix))]
     let (stdin, stdout) = (
         tokio_util::compat::TokioAsyncReadCompatExt::compat(tokio::io::stdin()),
         tokio_util::compat::TokioAsyncWriteCompatExt::compat_write(tokio::io::stdout()),
