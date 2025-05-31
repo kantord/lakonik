@@ -9,9 +9,8 @@ use async_lsp::tracing::TracingLayer;
 use async_lsp::{ClientSocket, LanguageServer, ResponseError};
 use futures::future::BoxFuture;
 use lsp_types::{
-    DidChangeConfigurationParams, DidSaveTextDocumentParams, 
-     Hover, HoverContents, HoverParams, HoverProviderCapability,
-    InitializeParams, InitializeResult, MarkedString, OneOf, ServerCapabilities,
+    DidChangeConfigurationParams, DidSaveTextDocumentParams, Hover, HoverContents, HoverParams,
+    HoverProviderCapability, InitializeParams, InitializeResult, MarkedString, ServerCapabilities,
     TextDocumentSyncCapability, TextDocumentSyncKind,
     notification::{
         DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, DidSaveTextDocument,
@@ -60,8 +59,6 @@ impl LanguageServer for ServerState {
             }))
         })
     }
-
-
 
     fn did_change_configuration(
         &mut self,
