@@ -1,5 +1,8 @@
+use std::collections::HashMap;
 use std::ops::ControlFlow;
 
+use crate::ast::utils::RangeContainsPosition;
+use crate::hir::AnalysisContext;
 use async_lsp::client_monitor::ClientProcessMonitorLayer;
 use async_lsp::concurrency::ConcurrencyLayer;
 use async_lsp::panic::CatchUnwindLayer;
@@ -10,8 +13,8 @@ use async_lsp::{ClientSocket, LanguageServer, ResponseError};
 use futures::future::BoxFuture;
 use lsp_types::{
     DidChangeConfigurationParams, DidSaveTextDocumentParams, Hover, HoverContents, HoverParams,
-    HoverProviderCapability, InitializeParams, InitializeResult, MarkedString, ServerCapabilities,
-    TextDocumentSyncCapability, TextDocumentSyncKind,
+    HoverProviderCapability, InitializeParams, InitializeResult, MarkedString, Position,
+    ServerCapabilities, TextDocumentSyncCapability, TextDocumentSyncKind, Url,
     notification::{
         DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, DidSaveTextDocument,
     },
@@ -19,9 +22,16 @@ use lsp_types::{
 use tower::ServiceBuilder;
 use tracing::Level;
 
+use crate::engine::parse;
+use crate::hir::{Analyzable, AnalyzedSentence};
+
+struct DocumentState {
+    analyzed: AnalyzedSentence,
+}
+
 struct ServerState {
     _client: ClientSocket,
-    counter: i32,
+    docs: HashMap<Url, DocumentState>,
 }
 
 impl LanguageServer for ServerState {
@@ -39,7 +49,6 @@ impl LanguageServer for ServerState {
                     text_document_sync: Some(TextDocumentSyncCapability::Kind(
                         TextDocumentSyncKind::INCREMENTAL,
                     )),
-
                     hover_provider: Some(HoverProviderCapability::Simple(true)),
                     ..ServerCapabilities::default()
                 },
@@ -48,15 +57,31 @@ impl LanguageServer for ServerState {
         })
     }
 
-    fn hover(&mut self, _: HoverParams) -> BoxFuture<'static, Result<Option<Hover>, Self::Error>> {
-        let counter = self.counter;
+    fn hover(
+        &mut self,
+        params: HoverParams,
+    ) -> BoxFuture<'static, Result<Option<Hover>, Self::Error>> {
+        // Clone fields to move into async block if needed, or borrow if not using .await inside
+        let uri = params
+            .text_document_position_params
+            .text_document
+            .uri
+            .clone();
+        let pos = params.text_document_position_params.position;
+        let analyzed_opt = self.docs.get(&uri).map(|doc| doc.analyzed.clone());
+
         Box::pin(async move {
-            Ok(Some(Hover {
-                contents: HoverContents::Scalar(MarkedString::String(format!(
-                    "I am a dummy hover {counter}!"
-                ))),
-                range: None,
-            }))
+            if let Some(analyzed) = analyzed_opt {
+                if let Some(hover_text) = find_hover_text(&analyzed, &pos) {
+                    return Ok(Some(Hover {
+                        contents: HoverContents::Scalar(MarkedString::String(
+                            hover_text.to_string(),
+                        )),
+                        range: None,
+                    }));
+                }
+            }
+            Ok(None)
         })
     }
 
@@ -68,11 +93,13 @@ impl LanguageServer for ServerState {
     }
 }
 
+// --- Notification handlers for open/change/save/close ---
+
 impl ServerState {
     fn new_router(client: ClientSocket) -> Router<Self> {
         let mut router = Router::from_language_server(Self {
             _client: client,
-            counter: 0,
+            docs: HashMap::new(),
         });
 
         router.notification::<DidOpenTextDocument>(Self::on_did_open);
@@ -85,15 +112,28 @@ impl ServerState {
 
     fn on_did_open(
         &mut self,
-        _params: lsp_types::DidOpenTextDocumentParams,
+        params: lsp_types::DidOpenTextDocumentParams,
     ) -> ControlFlow<async_lsp::Result<()>> {
+        let text = params.text_document.text.clone();
+        let ast = parse(&text);
+        let analyzed = ast.analyze(&mut AnalysisContext {});
+        self.docs
+            .insert(params.text_document.uri, DocumentState { analyzed });
         ControlFlow::Continue(())
     }
 
     fn on_did_change(
         &mut self,
-        _params: lsp_types::DidChangeTextDocumentParams,
+        params: lsp_types::DidChangeTextDocumentParams,
     ) -> ControlFlow<async_lsp::Result<()>> {
+        // Support incremental changes, but for simplicity, we reparse whole text.
+        if let Some(change) = params.content_changes.into_iter().last() {
+            let text = change.text;
+            let ast = parse(&text);
+            let analyzed = ast.analyze(&mut AnalysisContext {});
+            self.docs
+                .insert(params.text_document.uri, DocumentState { analyzed });
+        }
         ControlFlow::Continue(())
     }
 
@@ -101,16 +141,20 @@ impl ServerState {
         &mut self,
         _params: DidSaveTextDocumentParams,
     ) -> ControlFlow<async_lsp::Result<()>> {
+        // No action needed, but could reparse or update here if desired.
         ControlFlow::Continue(())
     }
 
     fn on_did_close(
         &mut self,
-        _params: lsp_types::DidCloseTextDocumentParams,
+        params: lsp_types::DidCloseTextDocumentParams,
     ) -> ControlFlow<async_lsp::Result<()>> {
+        self.docs.remove(&params.text_document.uri);
         ControlFlow::Continue(())
     }
 }
+
+// --- Main entrypoint ---
 
 pub async fn run_lsp_server() {
     let (server, _) = async_lsp::MainLoop::new_server(|client| {
@@ -135,4 +179,36 @@ pub async fn run_lsp_server() {
     );
 
     server.run_buffered(stdin, stdout).await.unwrap();
+}
+
+fn find_hover_text<'a>(analyzed: &'a AnalyzedSentence, pos: &Position) -> Option<&'a str> {
+    // Vocative
+    if analyzed.vocative.node.range.contains_position(pos) {
+        return Some(&analyzed.vocative.hover_text);
+    }
+    // Verb
+    if analyzed.verb.node.range.contains_position(pos) {
+        return Some(&analyzed.verb.hover_text);
+    }
+    // Parts
+    for part in &analyzed.parts {
+        match &part.node {
+            crate::ast::Part::Freeform(f) => {
+                if f.range.contains_position(pos) {
+                    return Some(&part.hover_text);
+                }
+            }
+            crate::ast::Part::FilePath(f) => {
+                if f.range.contains_position(pos) {
+                    return Some(&part.hover_text);
+                }
+            }
+            crate::ast::Part::InlineShell(f) => {
+                if f.range.contains_position(pos) {
+                    return Some(&part.hover_text);
+                }
+            }
+        }
+    }
+    None
 }

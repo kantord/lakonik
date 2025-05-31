@@ -3,74 +3,78 @@ use crate::ast::{Part, Sentence, Verb, Vocative};
 
 pub struct AnalysisContext {}
 
-pub trait Analyzable<'a> {
-    type AnalyzedNode: 'a;
+pub trait Analyzable {
+    type AnalyzedNode;
 
-    fn analyze(&'a self, ctx: &mut AnalysisContext) -> Self::AnalyzedNode;
+    fn analyze(&self, ctx: &mut AnalysisContext) -> Self::AnalyzedNode;
 }
 
-pub struct AnalyzedVocative<'a> {
-    pub node: &'a Vocative,
+#[derive(Clone)]
+pub struct AnalyzedVocative {
+    pub node: Vocative,
     pub hover_text: String,
 }
 
-pub struct AnalyzedPart<'a> {
-    pub node: &'a Part,
+#[derive(Clone)]
+pub struct AnalyzedPart {
+    pub node: Part,
     pub hover_text: String,
 }
 
-pub struct AnalyzedVerb<'a> {
-    pub node: &'a Verb,
+#[derive(Clone)]
+pub struct AnalyzedVerb {
+    pub node: Verb,
     pub hover_text: String,
 }
 
-pub struct AnalyzedSentence<'a> {
-    pub node: &'a Sentence,
+#[derive(Clone)]
+pub struct AnalyzedSentence {
+    pub node: Sentence,
     pub hover_text: String,
-    pub vocative: AnalyzedVocative<'a>,
-    pub verb: AnalyzedVerb<'a>,
-    pub parts: Vec<AnalyzedPart<'a>>,
+    pub vocative: AnalyzedVocative,
+    pub verb: AnalyzedVerb,
+    pub parts: Vec<AnalyzedPart>,
 }
 
-impl<'a> Analyzable<'a> for Vocative {
-    type AnalyzedNode = AnalyzedVocative<'a>;
+impl Analyzable for Vocative {
+    type AnalyzedNode = AnalyzedVocative;
 
-    fn analyze(&'a self, _ctx: &mut AnalysisContext) -> Self::AnalyzedNode {
+    fn analyze(&self, _ctx: &mut AnalysisContext) -> Self::AnalyzedNode {
         AnalyzedVocative {
-            node: self,
+            node: self.clone(),
             hover_text: format!("Hover text for vocative: {}", self.name),
         }
     }
 }
 
-impl<'a> Analyzable<'a> for Part {
-    type AnalyzedNode = AnalyzedPart<'a>;
+impl Analyzable for Part {
+    type AnalyzedNode = AnalyzedPart;
 
-    fn analyze(&'a self, _ctx: &mut AnalysisContext) -> Self::AnalyzedNode {
+    fn analyze(&self, _ctx: &mut AnalysisContext) -> Self::AnalyzedNode {
         AnalyzedPart {
-            node: self,
+            node: self.clone(),
             hover_text: "This is a part".to_string(),
         }
     }
 }
 
-impl<'a> Analyzable<'a> for Verb {
-    type AnalyzedNode = AnalyzedVerb<'a>;
+impl Analyzable for Verb {
+    type AnalyzedNode = AnalyzedVerb;
 
-    fn analyze(&'a self, _ctx: &mut AnalysisContext) -> Self::AnalyzedNode {
+    fn analyze(&self, _ctx: &mut AnalysisContext) -> Self::AnalyzedNode {
         AnalyzedVerb {
-            node: self,
+            node: self.clone(),
             hover_text: "This is a part".to_string(),
         }
     }
 }
 
-impl<'a> Analyzable<'a> for Sentence {
-    type AnalyzedNode = AnalyzedSentence<'a>;
+impl Analyzable for Sentence {
+    type AnalyzedNode = AnalyzedSentence;
 
-    fn analyze(&'a self, _ctx: &mut AnalysisContext) -> Self::AnalyzedNode {
+    fn analyze(&self, _ctx: &mut AnalysisContext) -> Self::AnalyzedNode {
         AnalyzedSentence {
-            node: self,
+            node: self.clone(),
             hover_text: "This is a part".to_string(),
             verb: self.verb.analyze(_ctx),
             vocative: self.vocative.analyze(_ctx),
