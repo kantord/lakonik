@@ -48,7 +48,7 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-async fn cmd_eval(verbose: bool, input: &Vec<String>) -> Result<()> {
+async fn cmd_eval(verbose: bool, input: &[String]) -> Result<()> {
     if verbose {
         eprintln!("Running in verbose mode...");
     }
