@@ -78,8 +78,6 @@ impl LanguageServer for ServerState {
     }
 }
 
-struct TickEvent;
-
 impl ServerState {
     fn new_router(client: ClientSocket) -> Router<Self> {
         let mut router = Router::from_language_server(Self {
@@ -87,20 +85,12 @@ impl ServerState {
             counter: 0,
         });
 
-        router.event(Self::on_tick);
-
         router.notification::<DidOpenTextDocument>(Self::on_did_open);
         router.notification::<DidChangeTextDocument>(Self::on_did_change);
         router.notification::<DidSaveTextDocument>(Self::on_did_save);
         router.notification::<DidCloseTextDocument>(Self::on_did_close);
 
         router
-    }
-
-    fn on_tick(&mut self, _: TickEvent) -> ControlFlow<async_lsp::Result<()>> {
-        info!("tick");
-        self.counter += 1;
-        ControlFlow::Continue(())
     }
 
     fn on_did_open(
@@ -134,19 +124,6 @@ impl ServerState {
 
 pub async fn run_lsp_server() {
     let (server, _) = async_lsp::MainLoop::new_server(|client| {
-        tokio::spawn({
-            let client = client.clone();
-            async move {
-                let mut interval = tokio::time::interval(Duration::from_secs(1));
-                loop {
-                    interval.tick().await;
-                    if client.emit(TickEvent).is_err() {
-                        break;
-                    }
-                }
-            }
-        });
-
         ServiceBuilder::new()
             .layer(TracingLayer::default())
             .layer(LifecycleLayer::default())
