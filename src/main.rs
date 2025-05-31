@@ -1,5 +1,6 @@
 mod ast;
 mod engine;
+mod hir;
 mod lsp;
 mod templates;
 

@@ -2,6 +2,7 @@ use std::io::Read;
 
 use crate::{
     ast::{Part, Sentence, Span, parse_statement},
+    hir::{AnalysisContext, Analyzable, AnalyzedSentence},
     templates::build_environment,
 };
 use duct::cmd;
@@ -36,11 +37,11 @@ pub fn format_cmd_result(code: &str, environment: &Environment) -> String {
     template.render(context).unwrap()
 }
 
-pub fn extract_description(sentence: &Sentence, environment: &Environment) -> String {
+pub fn extract_description(sentence: &AnalyzedSentence, environment: &Environment) -> String {
     sentence
         .parts
         .iter()
-        .filter_map(|part| match part {
+        .filter_map(|part| match part.node {
             Part::Freeform(part) => Some(part.text.clone()),
             Part::InlineShell(part) => Some(format_cmd_result(part.code.as_str(), environment)),
             _ => None,
@@ -49,7 +50,7 @@ pub fn extract_description(sentence: &Sentence, environment: &Environment) -> St
         .join(" ")
 }
 
-pub fn build_prompt(result: &Sentence) -> String {
+pub fn build_prompt(result: &AnalyzedSentence) -> String {
     let environment = build_environment();
 
     let description = extract_description(result, &environment);
@@ -57,7 +58,7 @@ pub fn build_prompt(result: &Sentence) -> String {
         description,
     };
     let template = environment
-        .get_template(&format!("verbs/{}", &result.verb.name))
+        .get_template(&format!("verbs/{}", &result.verb.node.name))
         .unwrap();
 
     template.render(context).unwrap()
@@ -99,7 +100,8 @@ pub struct PromptBuilderResult {
 
 pub fn run_prompt_builder(raw_input: &str) -> PromptBuilderResult {
     let ast = parse(raw_input);
-    let prompt = build_prompt(&ast);
+    let hir = ast.analyze(&mut AnalysisContext {});
+    let prompt = build_prompt(&hir);
     let attachments = extract_attachments(&ast);
 
     PromptBuilderResult {
