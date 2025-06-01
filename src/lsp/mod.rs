@@ -3,7 +3,6 @@ use std::collections::HashMap;
 use std::ops::ControlFlow;
 
 use crate::ast::utils::RangeContainsPosition;
-use crate::hir::AnalysisContext;
 use async_lsp::client_monitor::ClientProcessMonitorLayer;
 use async_lsp::concurrency::ConcurrencyLayer;
 use async_lsp::panic::CatchUnwindLayer;
@@ -13,7 +12,7 @@ use async_lsp::tracing::TracingLayer;
 use async_lsp::{ClientSocket, LanguageServer, ResponseError};
 use futures::future::BoxFuture;
 use lsp_types::{
-    DidChangeConfigurationParams, DidSaveTextDocumentParams, Hover, HoverContents, HoverParams,
+    DidChangeConfigurationParams, Hover, HoverContents, HoverParams,
     HoverProviderCapability, InitializeParams, InitializeResult, MarkedString, Position,
     ServerCapabilities, TextDocumentSyncCapability, TextDocumentSyncKind, Url,
     notification::{
@@ -24,7 +23,7 @@ use tower::ServiceBuilder;
 use tracing::Level;
 use utils::update_document;
 
-use crate::hir::{Analyzable, AnalyzedSentence};
+use crate::hir::AnalyzedSentence;
 
 pub struct DocumentState {
     analyzed: AnalyzedSentence,
@@ -146,7 +145,7 @@ impl ServerState {
 
     fn on_did_save(
         &mut self,
-        params: lsp_types::DidSaveTextDocumentParams,
+        _params: lsp_types::DidSaveTextDocumentParams,
     ) -> ControlFlow<async_lsp::Result<()>> {
         ControlFlow::Continue(())
     }
