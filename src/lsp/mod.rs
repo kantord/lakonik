@@ -336,6 +336,9 @@ mod tests {
     #[case("qw***en3 create foobar", Some("Hover text for vocative: qwen3"))]
     #[case("hell***o create foobar", Some("Hover text for vocative: hello"))]
     #[case("foobar *** create lorem", None)]
+    #[case("test c***reate foobar", Some("This is a verb"))]
+    #[case("test ***create foobar", Some("This is a verb"))]
+    #[case("test create foo***bar", Some("This is a part"))]
     #[tokio::test]
     async fn hover_cases(#[case] raw_input: &str, #[case] expected_hover: Option<&str>) {
         let actual = get_hover_text(raw_input).await;
