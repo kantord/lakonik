@@ -31,11 +31,11 @@ pub fn range(span: Span) -> SourceRange {
 
     SourceRange {
         start: SourcePosition {
-            line: start_line,
+            line: start_line - 1,
             offset: start_offset,
         },
         end: SourcePosition {
-            line: end_line,
+            line: end_line - 1,
             offset: end_offset,
         },
     }

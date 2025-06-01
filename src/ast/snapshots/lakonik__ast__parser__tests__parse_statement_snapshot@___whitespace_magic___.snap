@@ -5,29 +5,29 @@ expression: sentence
 type: sentence
 range:
   start:
-    line: 1
+    line: 0
     offset: 0
   end:
-    line: 1
+    line: 0
     offset: 22
 vocative:
   type: vocative
   range:
     start:
-      line: 1
+      line: 0
       offset: 3
     end:
-      line: 1
+      line: 0
       offset: 22
   name: whitespace
 verb:
   type: verb
   range:
     start:
-      line: 1
+      line: 0
       offset: 14
     end:
-      line: 1
+      line: 0
       offset: 22
   name: magic
 parts: []
