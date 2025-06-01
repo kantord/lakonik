@@ -206,3 +206,142 @@ fn find_hover_text<'a>(analyzed: &'a AnalyzedSentence, pos: &Position) -> Option
     }
     None
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use async_lsp::{
+        LanguageServer, MainLoop, ServerSocket, client_monitor::ClientProcessMonitorLayer,
+        concurrency::ConcurrencyLayer, panic::CatchUnwindLayer, router::Router,
+        server::LifecycleLayer, tracing::TracingLayer,
+    };
+    use lsp_types::{
+        DidOpenTextDocumentParams, HoverContents, HoverParams, InitializeParams, InitializedParams,
+        MarkedString, Position, TextDocumentIdentifier, TextDocumentItem,
+        TextDocumentPositionParams, Url, WorkDoneProgressParams,
+    };
+    use rstest::rstest;
+    use tokio::io::duplex;
+    use tokio::task::JoinHandle;
+    use tokio_util::compat::{TokioAsyncReadCompatExt, TokioAsyncWriteCompatExt};
+    use tower::ServiceBuilder;
+
+    pub fn find_hover_position(source: &str) -> (String, Position) {
+        if let Some(idx) = source.find("***") {
+            let mut clean = String::with_capacity(source.len() - 3);
+            clean.push_str(&source[..idx]);
+            clean.push_str(&source[idx + 3..]);
+            let col = idx as u32;
+            (clean, Position::new(0, col))
+        } else {
+            panic!("No hover marker (***) found in source!");
+        }
+    }
+
+    pub async fn launch_lsp_server() -> (ServerSocket, JoinHandle<()>, JoinHandle<()>) {
+        // Create two in-memory pipes: one for client→server, one for server→client.
+        let (client_read, server_write) = duplex(1024);
+        let (server_read, client_write) = duplex(1024);
+
+        let (server_mainloop, _) = MainLoop::new_server(|client_socket| {
+            ServiceBuilder::new()
+                .layer(TracingLayer::default())
+                .layer(LifecycleLayer::default())
+                .layer(CatchUnwindLayer::default())
+                .layer(ConcurrencyLayer::default())
+                .layer(ClientProcessMonitorLayer::new(client_socket.clone()))
+                .service(ServerState::new_router(client_socket))
+        });
+
+        let server_task: JoinHandle<()> = tokio::spawn(async move {
+            let mut read = server_read.compat();
+            let mut write = server_write.compat_write();
+            server_mainloop
+                .run_buffered(&mut read, &mut write)
+                .await
+                .unwrap();
+        });
+
+        let (client_mainloop, client_socket) = MainLoop::new_client(|_server| Router::new(()));
+
+        let client_task: JoinHandle<()> = tokio::spawn(async move {
+            let mut read = client_read.compat();
+            let mut write = client_write.compat_write();
+            client_mainloop
+                .run_buffered(&mut read, &mut write)
+                .await
+                .unwrap();
+        });
+
+        (client_socket, server_task, client_task)
+    }
+
+    pub async fn get_hover_text(source: &str) -> Option<String> {
+        let (clean, pos) = find_hover_position(source);
+
+        let (mut client, server_handle, client_handle) = launch_lsp_server().await;
+
+        let uri = Url::parse("file:///testfile").unwrap();
+
+        client
+            .initialize(InitializeParams {
+                ..Default::default()
+            })
+            .await
+            .unwrap();
+        client.initialized(InitializedParams {}).unwrap();
+
+        client
+            .did_open(DidOpenTextDocumentParams {
+                text_document: TextDocumentItem {
+                    uri: uri.clone(),
+                    language_id: "test".into(),
+                    version: 1,
+                    text: clean.clone(),
+                },
+            })
+            .unwrap();
+
+        let hover = client
+            .hover(HoverParams {
+                text_document_position_params: TextDocumentPositionParams {
+                    text_document: TextDocumentIdentifier { uri: uri.clone() },
+                    position: pos,
+                },
+                work_done_progress_params: WorkDoneProgressParams::default(),
+            })
+            .await
+            .unwrap();
+
+        drop(client);
+        server_handle.abort();
+        client_handle.abort();
+
+        hover.map(|h| match h.contents {
+            HoverContents::Scalar(MarkedString::String(s)) => s,
+            HoverContents::Markup(m) => m.value,
+            HoverContents::Array(arr) => arr
+                .into_iter()
+                .map(|ms| match ms {
+                    MarkedString::String(s) => s,
+                    MarkedString::LanguageString(ls) => ls.value,
+                })
+                .collect::<Vec<_>>()
+                .join("\n"),
+            _ => String::new(),
+        })
+    }
+
+    #[rstest]
+    #[case("qw***en3 create foobar", Some("Hover text for vocative: qwen3"))]
+    #[case("hell***o create foobar", Some("Hover text for vocative: hello"))]
+    #[case("foobar *** create lorem", None)]
+    #[case("test c***reate foobar", Some("This is a verb"))]
+    #[case("test ***create foobar", Some("This is a verb"))]
+    #[case("test create foo***bar", Some("This is a part"))]
+    #[tokio::test]
+    async fn hover_cases(#[case] raw_input: &str, #[case] expected_hover: Option<&str>) {
+        let actual = get_hover_text(raw_input).await;
+        assert_eq!(actual.as_deref(), expected_hover);
+    }
+}
