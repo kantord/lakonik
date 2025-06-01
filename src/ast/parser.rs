@@ -1,7 +1,7 @@
 use nom::Parser;
 use nom::bytes::complete::{tag, take_until};
-use nom::character::complete::alphanumeric1;
 use nom::character::complete::multispace1;
+use nom::character::complete::{alphanumeric1, multispace0};
 use nom::combinator::{all_consuming, map, opt};
 use nom::multi::separated_list1;
 use nom::sequence::{delimited, preceded};
@@ -146,7 +146,11 @@ fn sentence(input: Span) -> IResult<Span, Sentence> {
     let range = range(input);
 
     map(
-        (vocative, multispace1, verb, maybe_parts),
+        delimited(
+            multispace0,
+            (vocative, multispace1, verb, maybe_parts),
+            multispace0,
+        ),
         |(vocative, _, verb, parts)| Sentence {
             range,
             vocative,
@@ -184,6 +188,9 @@ mod tests {
     #[case("qwen3 edit foo $(find . | grep hello | grep py) bar")]
     #[case("qwen3 delete bar $(git diff)")]
     #[case("qwen3 summarize $(curl https://google.com)")]
+    #[case("   whitespace allow")]
+    #[case("   whitespace magic   ")]
+    #[case("want some whitespace   ")]
     fn parse_statement_snapshot(#[case] input: &str) {
         let mut s = insta::Settings::clone_current();
         s.set_snapshot_suffix(input.replace(' ', "_").to_string());
