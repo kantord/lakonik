@@ -5,29 +5,29 @@ expression: sentence
 type: sentence
 range:
   start:
-    line: 1
+    line: 0
     offset: 0
   end:
-    line: 1
+    line: 0
     offset: 42
 vocative:
   type: vocative
   range:
     start:
-      line: 1
+      line: 0
       offset: 0
     end:
-      line: 1
+      line: 0
       offset: 42
   name: qwen3
 verb:
   type: verb
   range:
     start:
-      line: 1
+      line: 0
       offset: 6
     end:
-      line: 1
+      line: 0
       offset: 42
   name: summarize
 parts:
@@ -35,9 +35,9 @@ parts:
       type: inline_shell
       range:
         start:
-          line: 1
+          line: 0
           offset: 16
         end:
-          line: 1
+          line: 0
           offset: 42
       code: "curl https://google.com"

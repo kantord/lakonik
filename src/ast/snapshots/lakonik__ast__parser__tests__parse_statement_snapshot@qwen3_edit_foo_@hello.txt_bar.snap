@@ -5,29 +5,29 @@ expression: sentence
 type: sentence
 range:
   start:
-    line: 1
+    line: 0
     offset: 0
   end:
-    line: 1
+    line: 0
     offset: 29
 vocative:
   type: vocative
   range:
     start:
-      line: 1
+      line: 0
       offset: 0
     end:
-      line: 1
+      line: 0
       offset: 29
   name: qwen3
 verb:
   type: verb
   range:
     start:
-      line: 1
+      line: 0
       offset: 6
     end:
-      line: 1
+      line: 0
       offset: 29
   name: edit
 parts:
@@ -35,29 +35,29 @@ parts:
       type: freeform
       range:
         start:
-          line: 1
+          line: 0
           offset: 11
         end:
-          line: 1
+          line: 0
           offset: 29
       text: foo
   - FilePath:
       type: filepath
       range:
         start:
-          line: 1
+          line: 0
           offset: 15
         end:
-          line: 1
+          line: 0
           offset: 29
       path: hello.txt
   - Freeform:
       type: freeform
       range:
         start:
-          line: 1
+          line: 0
           offset: 26
         end:
-          line: 1
+          line: 0
           offset: 29
       text: bar
