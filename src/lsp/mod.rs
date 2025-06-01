@@ -1,8 +1,8 @@
+mod utils;
 use std::collections::HashMap;
 use std::ops::ControlFlow;
 
 use crate::ast::utils::RangeContainsPosition;
-use crate::ast::{Sentence, Span, parse_statement};
 use crate::hir::AnalysisContext;
 use async_lsp::client_monitor::ClientProcessMonitorLayer;
 use async_lsp::concurrency::ConcurrencyLayer;
@@ -22,14 +22,15 @@ use lsp_types::{
 };
 use tower::ServiceBuilder;
 use tracing::Level;
+use utils::update_document;
 
 use crate::hir::{Analyzable, AnalyzedSentence};
 
-struct DocumentState {
+pub struct DocumentState {
     analyzed: AnalyzedSentence,
 }
 
-struct ServerState {
+pub struct ServerState {
     _client: ClientSocket,
     docs: HashMap<Url, DocumentState>,
 }
@@ -101,8 +102,8 @@ impl ServerState {
 
         router.notification::<DidOpenTextDocument>(Self::on_did_open);
         router.notification::<DidChangeTextDocument>(Self::on_did_change);
-        router.notification::<DidSaveTextDocument>(Self::on_did_save);
         router.notification::<DidCloseTextDocument>(Self::on_did_close);
+        router.notification::<DidSaveTextDocument>(Self::on_did_save);
 
         router
     }
@@ -112,14 +113,8 @@ impl ServerState {
         params: lsp_types::DidOpenTextDocumentParams,
     ) -> ControlFlow<async_lsp::Result<()>> {
         let text = params.text_document.text.clone();
-        if let Some(ast) = parse(&text) {
-            let analyzed = ast.analyze(&mut AnalysisContext {});
-            self.docs
-                .insert(params.text_document.uri, DocumentState { analyzed });
-        } else {
-            self.docs.remove(&params.text_document.uri);
-            tracing::warn!("Could not parse document: {}", params.text_document.uri);
-        }
+        let uri = params.text_document.uri.clone();
+        update_document(&mut self.docs, uri, text);
         ControlFlow::Continue(())
     }
 
@@ -129,29 +124,15 @@ impl ServerState {
     ) -> ControlFlow<async_lsp::Result<()>> {
         if let Some(change) = params.content_changes.into_iter().next_back() {
             let text = change.text;
+            let uri = params.text_document.uri.clone();
             eprintln!(
                 "LSP: didChange {} ({} chars) text: '{}'",
-                params.text_document.uri,
+                uri,
                 text.len(),
                 text
             );
-            if let Some(ast) = parse(&text) {
-                let analyzed = ast.analyze(&mut AnalysisContext {});
-                eprintln!("Parsed document: {:?}", analyzed);
-                self.docs
-                    .insert(params.text_document.uri, DocumentState { analyzed });
-            } else {
-                self.docs.remove(&params.text_document.uri);
-                tracing::warn!("Could not parse document: {}", params.text_document.uri);
-            }
+            update_document(&mut self.docs, uri, text);
         }
-        ControlFlow::Continue(())
-    }
-
-    fn on_did_save(
-        &mut self,
-        _params: DidSaveTextDocumentParams,
-    ) -> ControlFlow<async_lsp::Result<()>> {
         ControlFlow::Continue(())
     }
 
@@ -162,11 +143,13 @@ impl ServerState {
         self.docs.remove(&params.text_document.uri);
         ControlFlow::Continue(())
     }
-}
 
-pub fn parse(input: &str) -> Option<Sentence> {
-    let span = Span::new(input);
-    parse_statement(span).ok().map(|(_, sentence)| sentence)
+    fn on_did_save(
+        &mut self,
+        params: lsp_types::DidSaveTextDocumentParams,
+    ) -> ControlFlow<async_lsp::Result<()>> {
+        ControlFlow::Continue(())
+    }
 }
 
 pub async fn run_lsp_server() {
