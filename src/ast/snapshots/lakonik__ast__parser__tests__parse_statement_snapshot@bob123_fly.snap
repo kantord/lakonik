@@ -18,7 +18,7 @@ vocative:
       offset: 0
     end:
       line: 0
-      offset: 10
+      offset: 6
   name: bob123
 verb:
   type: verb

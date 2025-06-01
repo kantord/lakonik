@@ -18,7 +18,7 @@ vocative:
       offset: 0
     end:
       line: 0
-      offset: 24
+      offset: 5
   name: qwen3
 verb:
   type: verb
@@ -28,7 +28,7 @@ verb:
       offset: 6
     end:
       line: 0
-      offset: 24
+      offset: 12
   name: create
 parts:
   - InlineShell:
@@ -36,8 +36,8 @@ parts:
       range:
         start:
           line: 0
-          offset: 13
+          offset: 15
         end:
           line: 0
-          offset: 24
+          offset: 23
       code: "  tree ."

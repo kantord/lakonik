@@ -18,7 +18,7 @@ vocative:
       offset: 0
     end:
       line: 0
-      offset: 23
+      offset: 4
   name: want
 verb:
   type: verb
@@ -28,7 +28,7 @@ verb:
       offset: 5
     end:
       line: 0
-      offset: 23
+      offset: 9
   name: some
 parts:
   - Freeform:
@@ -39,5 +39,5 @@ parts:
           offset: 10
         end:
           line: 0
-          offset: 23
+          offset: 20
       text: whitespace

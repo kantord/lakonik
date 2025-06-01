@@ -18,7 +18,7 @@ vocative:
       offset: 0
     end:
       line: 0
-      offset: 27
+      offset: 5
   name: qwen3
 verb:
   type: verb
@@ -28,7 +28,7 @@ verb:
       offset: 6
     end:
       line: 0
-      offset: 27
+      offset: 12
   name: delete
 parts:
   - Freeform:
@@ -39,14 +39,14 @@ parts:
           offset: 13
         end:
           line: 0
-          offset: 27
+          offset: 16
       text: bar
   - FilePath:
       type: filepath
       range:
         start:
           line: 0
-          offset: 17
+          offset: 18
         end:
           line: 0
           offset: 27
