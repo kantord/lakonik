@@ -64,7 +64,7 @@ impl Analyzable for Verb {
     fn analyze(&self, _ctx: &mut AnalysisContext) -> Self::AnalyzedNode {
         AnalyzedVerb {
             node: self.clone(),
-            hover_text: "This is a part".to_string(),
+            hover_text: "This is a verb".to_string(),
         }
     }
 }
