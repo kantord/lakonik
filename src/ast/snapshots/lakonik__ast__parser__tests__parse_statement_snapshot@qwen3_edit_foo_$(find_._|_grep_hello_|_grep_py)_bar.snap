@@ -18,7 +18,7 @@ vocative:
       offset: 0
     end:
       line: 0
-      offset: 51
+      offset: 5
   name: qwen3
 verb:
   type: verb
@@ -28,7 +28,7 @@ verb:
       offset: 6
     end:
       line: 0
-      offset: 51
+      offset: 10
   name: edit
 parts:
   - Freeform:
@@ -39,17 +39,17 @@ parts:
           offset: 11
         end:
           line: 0
-          offset: 51
+          offset: 14
       text: foo
   - InlineShell:
       type: inline_shell
       range:
         start:
           line: 0
-          offset: 15
+          offset: 17
         end:
           line: 0
-          offset: 51
+          offset: 46
       code: find . | grep hello | grep py
   - Freeform:
       type: freeform

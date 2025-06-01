@@ -18,7 +18,7 @@ vocative:
       offset: 3
     end:
       line: 0
-      offset: 19
+      offset: 13
   name: whitespace
 verb:
   type: verb

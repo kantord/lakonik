@@ -70,52 +70,42 @@ pub struct Sentence {
 }
 
 fn vocative(input: Span) -> IResult<Span, Vocative> {
-    let range = range(input);
-
-    map(lowercase_name, |name| Vocative {
-        range,
+    map(lowercase_name, |name: Span| Vocative {
+        range: range(name),
         name: name.to_string(),
     })
     .parse(input)
 }
 
 fn verb(input: Span) -> IResult<Span, Verb> {
-    let range = range(input);
-
     map(lowercase_name, |name| Verb {
-        range,
+        range: range(name),
         name: name.to_string(),
     })
     .parse(input)
 }
 
 fn freeform_part(input: Span) -> IResult<Span, FreeformPart> {
-    let range = range(input);
-
     map(alphanumeric1, |text: Span| FreeformPart {
-        range,
+        range: range(text),
         text: text.to_string(),
     })
     .parse(input)
 }
 
 fn filepath_part(input: Span) -> IResult<Span, FilePathPart> {
-    let range = range(input);
-
     map(preceded(tag("@"), file_path), move |s: Span| FilePathPart {
-        range,
+        range: range(s),
         path: s.fragment().to_string(),
     })
     .parse(input)
 }
 
 fn inline_shell_part(input: Span) -> IResult<Span, InlineShellPart> {
-    let range = range(input);
-
     map(
         delimited(tag("$("), take_until(")"), tag(")")),
         |code: Span| InlineShellPart {
-            range,
+            range: range(code),
             code: code.to_string(),
         },
     )

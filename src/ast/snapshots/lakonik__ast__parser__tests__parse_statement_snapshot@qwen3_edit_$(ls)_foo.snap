@@ -18,7 +18,7 @@ vocative:
       offset: 0
     end:
       line: 0
-      offset: 20
+      offset: 5
   name: qwen3
 verb:
   type: verb
@@ -28,7 +28,7 @@ verb:
       offset: 6
     end:
       line: 0
-      offset: 20
+      offset: 10
   name: edit
 parts:
   - InlineShell:
@@ -36,10 +36,10 @@ parts:
       range:
         start:
           line: 0
-          offset: 11
+          offset: 13
         end:
           line: 0
-          offset: 20
+          offset: 15
       code: ls
   - Freeform:
       type: freeform

@@ -18,7 +18,7 @@ vocative:
       offset: 0
     end:
       line: 0
-      offset: 25
+      offset: 5
   name: qwen3
 verb:
   type: verb
@@ -28,7 +28,7 @@ verb:
       offset: 6
     end:
       line: 0
-      offset: 25
+      offset: 10
   name: edit
 parts:
   - FilePath:
@@ -36,10 +36,10 @@ parts:
       range:
         start:
           line: 0
-          offset: 11
+          offset: 12
         end:
           line: 0
-          offset: 25
+          offset: 21
       path: hello.txt
   - Freeform:
       type: freeform

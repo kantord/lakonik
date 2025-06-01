@@ -18,7 +18,7 @@ vocative:
       offset: 0
     end:
       line: 0
-      offset: 12
+      offset: 7
   name: alice42
 verb:
   type: verb
