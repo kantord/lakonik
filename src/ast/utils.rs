@@ -1,21 +1,9 @@
+use lsp_types::{Position, Range};
 use nom_locate::LocatedSpan;
-use serde::Serialize;
 
 pub type Span<'a> = LocatedSpan<&'a str>;
 
-#[derive(Debug, PartialEq, Clone, Copy, Serialize)]
-pub struct SourcePosition {
-    pub line: u32,
-    pub offset: usize,
-}
-
-#[derive(Debug, PartialEq, Clone, Copy, Serialize)]
-pub struct SourceRange {
-    pub start: SourcePosition,
-    pub end: SourcePosition,
-}
-
-pub fn range(span: Span) -> SourceRange {
+pub fn range(span: Span) -> Range {
     let start_offset = span.location_offset();
     let start_line = span.location_line();
 
@@ -29,14 +17,27 @@ pub fn range(span: Span) -> SourceRange {
         }
     }
 
-    SourceRange {
-        start: SourcePosition {
+    Range {
+        start: Position {
             line: start_line - 1,
-            offset: start_offset,
+            character: start_offset as u32,
         },
-        end: SourcePosition {
+        end: Position {
             line: end_line - 1,
-            offset: end_offset,
+            character: end_offset as u32,
         },
+    }
+}
+
+pub trait RangeContainsPosition {
+    fn contains_position(&self, pos: &Position) -> bool;
+}
+
+impl RangeContainsPosition for Range {
+    fn contains_position(&self, pos: &Position) -> bool {
+        (self.start.line < pos.line
+            || (self.start.line == pos.line && self.start.character <= pos.character))
+            && (pos.line < self.end.line
+                || (pos.line == self.end.line && pos.character < self.end.character))
     }
 }

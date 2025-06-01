@@ -6,28 +6,28 @@ type: sentence
 range:
   start:
     line: 0
-    offset: 0
+    character: 0
   end:
     line: 0
-    offset: 10
+    character: 10
 vocative:
   type: vocative
   range:
     start:
       line: 0
-      offset: 0
+      character: 0
     end:
       line: 0
-      offset: 6
+      character: 6
   name: bob123
 verb:
   type: verb
   range:
     start:
       line: 0
-      offset: 7
+      character: 7
     end:
       line: 0
-      offset: 10
+      character: 10
   name: fly
 parts: []

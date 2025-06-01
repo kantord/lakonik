@@ -6,28 +6,28 @@ type: sentence
 range:
   start:
     line: 0
-    offset: 0
+    character: 0
   end:
     line: 0
-    offset: 8
+    character: 8
 vocative:
   type: vocative
   range:
     start:
       line: 0
-      offset: 0
+      character: 0
     end:
       line: 0
-      offset: 4
+      character: 4
   name: john
 verb:
   type: verb
   range:
     start:
       line: 0
-      offset: 5
+      character: 5
     end:
       line: 0
-      offset: 8
+      character: 8
   name: run
 parts: []

@@ -6,29 +6,29 @@ type: sentence
 range:
   start:
     line: 0
-    offset: 0
+    character: 0
   end:
     line: 0
-    offset: 29
+    character: 29
 vocative:
   type: vocative
   range:
     start:
       line: 0
-      offset: 0
+      character: 0
     end:
       line: 0
-      offset: 5
+      character: 5
   name: qwen3
 verb:
   type: verb
   range:
     start:
       line: 0
-      offset: 6
+      character: 6
     end:
       line: 0
-      offset: 10
+      character: 10
   name: edit
 parts:
   - Freeform:
@@ -36,28 +36,28 @@ parts:
       range:
         start:
           line: 0
-          offset: 11
+          character: 11
         end:
           line: 0
-          offset: 14
+          character: 14
       text: foo
   - FilePath:
       type: filepath
       range:
         start:
           line: 0
-          offset: 16
+          character: 16
         end:
           line: 0
-          offset: 25
+          character: 25
       path: hello.txt
   - Freeform:
       type: freeform
       range:
         start:
           line: 0
-          offset: 26
+          character: 26
         end:
           line: 0
-          offset: 29
+          character: 29
       text: bar

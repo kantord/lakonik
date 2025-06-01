@@ -6,28 +6,28 @@ type: sentence
 range:
   start:
     line: 0
-    offset: 0
+    character: 0
   end:
     line: 0
-    offset: 17
+    character: 17
 vocative:
   type: vocative
   range:
     start:
       line: 0
-      offset: 0
+      character: 0
     end:
       line: 0
-      offset: 7
+      character: 7
   name: my-name
 verb:
   type: verb
   range:
     start:
       line: 0
-      offset: 8
+      character: 8
     end:
       line: 0
-      offset: 17
+      character: 17
   name: jump-fast
 parts: []
