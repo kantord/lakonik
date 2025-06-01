@@ -9,25 +9,25 @@ pub trait Analyzable {
     fn analyze(&self, ctx: &mut AnalysisContext) -> Self::AnalyzedNode;
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct AnalyzedVocative {
     pub node: Vocative,
     pub hover_text: String,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct AnalyzedPart {
     pub node: Part,
     pub hover_text: String,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct AnalyzedVerb {
     pub node: Verb,
     pub hover_text: String,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct AnalyzedSentence {
     pub node: Sentence,
     pub hover_text: String,

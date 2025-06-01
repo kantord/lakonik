@@ -47,7 +47,7 @@ impl LanguageServer for ServerState {
             Ok(InitializeResult {
                 capabilities: ServerCapabilities {
                     text_document_sync: Some(TextDocumentSyncCapability::Kind(
-                        TextDocumentSyncKind::INCREMENTAL,
+                        TextDocumentSyncKind::FULL,
                     )),
                     hover_provider: Some(HoverProviderCapability::Simple(true)),
                     ..ServerCapabilities::default()
@@ -132,8 +132,15 @@ impl ServerState {
     ) -> ControlFlow<async_lsp::Result<()>> {
         if let Some(change) = params.content_changes.into_iter().next_back() {
             let text = change.text;
+            eprintln!(
+                "LSP: didChange {} ({} chars) text: '{}'",
+                params.text_document.uri,
+                text.len(),
+                text
+            );
             if let Some(ast) = parse(&text) {
                 let analyzed = ast.analyze(&mut AnalysisContext {});
+                eprintln!("Parsed document: {:?}", analyzed);
                 self.docs
                     .insert(params.text_document.uri, DocumentState { analyzed });
             } else {
