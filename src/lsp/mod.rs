@@ -23,7 +23,7 @@ use tower::ServiceBuilder;
 use tracing::Level;
 use utils::update_document;
 
-use crate::hir::AnalyzedSentence;
+use crate::hir::{AnalyzedPart, AnalyzedSentence};
 
 pub struct DocumentState {
     analyzed: AnalyzedSentence,
@@ -186,20 +186,20 @@ fn find_hover_text<'a>(analyzed: &'a AnalyzedSentence, pos: &Position) -> Option
     }
 
     for part in &analyzed.parts {
-        match &part.node {
-            crate::ast::Part::Freeform(f) => {
-                if f.range.contains_position(pos) {
-                    return Some(&part.hover_text);
+        match part {
+            AnalyzedPart::Freeform(p) => {
+                if p.node.range.contains_position(pos) {
+                    return Some(&p.hover_text);
                 }
             }
-            crate::ast::Part::FilePath(f) => {
-                if f.range.contains_position(pos) {
-                    return Some(&part.hover_text);
+            AnalyzedPart::FilePath(p) => {
+                if p.node.range.contains_position(pos) {
+                    return Some(&p.hover_text);
                 }
             }
-            crate::ast::Part::InlineShell(f) => {
-                if f.range.contains_position(pos) {
-                    return Some(&part.hover_text);
+            AnalyzedPart::InlineShell(p) => {
+                if p.node.range.contains_position(pos) {
+                    return Some(&p.hover_text);
                 }
             }
         }
@@ -339,6 +339,10 @@ mod tests {
     #[case("test c***reate foobar", Some("This is a verb"))]
     #[case("test ***create foobar", Some("This is a verb"))]
     #[case("test create foo***bar", Some("This is a part"))]
+    #[case(
+        "test create test module in $(tre***e .)",
+        Some(r#"Will expand to the results of `tree .`"#)
+    )]
     #[tokio::test]
     async fn hover_cases(#[case] raw_input: &str, #[case] expected_hover: Option<&str>) {
         let actual = get_hover_text(raw_input).await;
