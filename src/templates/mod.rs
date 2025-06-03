@@ -1,11 +1,23 @@
+#![allow(dead_code)]
+
 use include_dir::{Dir, include_dir};
 use minijinja::Environment;
 
 static BUILT_IN_TEMPLATES_DIR: Dir = include_dir!("$CARGO_MANIFEST_DIR/src/templates/built_in");
 
+pub enum TemplateSource {
+    BuiltIn,
+}
+
+pub enum TemplateType {
+    Verb,
+}
+
 pub struct Template {
     pub path: String,
     pub contents: String,
+    pub source: TemplateSource,
+    pub template_type: TemplateType,
 }
 
 pub fn get_built_in_templates() -> impl Iterator<Item = Template> {
@@ -14,6 +26,8 @@ pub fn get_built_in_templates() -> impl Iterator<Item = Template> {
         .expect("Failed to traverse embedded templates")
         .filter_map(|entry| {
             entry.as_file().map(|f| Template {
+                template_type: TemplateType::Verb,
+                source: TemplateSource::BuiltIn,
                 path: f
                     .path()
                     .to_string_lossy()
