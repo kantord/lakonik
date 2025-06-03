@@ -2,7 +2,7 @@ use std::io::Read;
 
 use crate::{
     ast::{Part, Sentence, Span, parse_statement},
-    hir::{AnalysisContext, Analyzable, AnalyzedSentence},
+    hir::{AnalysisContext, Analyzable, AnalyzedPart, AnalyzedSentence},
     templates::build_environment,
 };
 use duct::cmd;
@@ -41,9 +41,11 @@ pub fn extract_description(sentence: &AnalyzedSentence, environment: &Environmen
     sentence
         .parts
         .iter()
-        .filter_map(|part| match &part.node {
-            Part::Freeform(part) => Some(part.text.clone()),
-            Part::InlineShell(part) => Some(format_cmd_result(part.code.as_str(), environment)),
+        .filter_map(|part| match &part {
+            AnalyzedPart::Freeform(part) => Some(part.node.text.clone()),
+            AnalyzedPart::InlineShell(part) => {
+                Some(format_cmd_result(part.node.code.as_str(), environment))
+            }
             _ => None,
         })
         .collect::<Vec<_>>()

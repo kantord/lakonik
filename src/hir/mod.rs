@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-use crate::ast::{Part, Sentence, Verb, Vocative};
+use crate::ast::{FilePathPart, FreeformPart, InlineShellPart, Part, Sentence, Verb, Vocative};
 
 pub struct AnalysisContext {}
 
@@ -16,9 +16,28 @@ pub struct AnalyzedVocative {
 }
 
 #[derive(Clone, Debug)]
-pub struct AnalyzedPart {
-    pub node: Part,
+pub struct AnalyzedFreeformPart {
+    pub node: FreeformPart,
     pub hover_text: String,
+}
+
+#[derive(Clone, Debug)]
+pub struct AnalyzedFilePathPart {
+    pub node: FilePathPart,
+    pub hover_text: String,
+}
+
+#[derive(Clone, Debug)]
+pub struct AnalyzedInlineShellPart {
+    pub node: InlineShellPart,
+    pub hover_text: String,
+}
+
+#[derive(Clone, Debug)]
+pub enum AnalyzedPart {
+    Freeform(AnalyzedFreeformPart),
+    FilePath(AnalyzedFilePathPart),
+    InlineShell(AnalyzedInlineShellPart),
 }
 
 #[derive(Clone, Debug)]
@@ -51,9 +70,20 @@ impl Analyzable for Part {
     type AnalyzedNode = AnalyzedPart;
 
     fn analyze(&self, _ctx: &mut AnalysisContext) -> Self::AnalyzedNode {
-        AnalyzedPart {
-            node: self.clone(),
-            hover_text: "This is a part".to_string(),
+        match self {
+            Part::Freeform(part) => AnalyzedPart::Freeform(AnalyzedFreeformPart {
+                node: part.clone(),
+                hover_text: "This is a part".to_string(),
+            }),
+            Part::FilePath(part) => AnalyzedPart::FilePath(AnalyzedFilePathPart {
+                node: part.clone(),
+                hover_text: "This is a file path part".to_string(),
+            }),
+            Part::InlineShell(part) => AnalyzedPart::InlineShell(AnalyzedInlineShellPart {
+                node: part.clone(),
+                hover_text: format!("Will expand to the results of `{}`", { part.code.clone() })
+                    .to_string(),
+            }),
         }
     }
 }
