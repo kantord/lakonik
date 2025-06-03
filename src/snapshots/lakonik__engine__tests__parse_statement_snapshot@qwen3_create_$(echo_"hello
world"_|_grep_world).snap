@@ -3,4 +3,4 @@ source: src/engine.rs
 expression: simplified_result
 ---
 attachments: []
-prompt: "\n\nCommand: echo \"hello\nworld\" | grep world\nOutput:\nworld\n\n"
+prompt: "create for me a(n) \n\nCommand: echo \"hello\nworld\" | grep world\nOutput:\nworld\n\n"

@@ -3,4 +3,4 @@ source: src/engine.rs
 expression: simplified_result
 ---
 attachments: []
-prompt: "\n\nCommand: expr 5 - 3\nOutput:\n2\n\n"
+prompt: "create for me a(n) \n\nCommand: expr 5 - 3\nOutput:\n2\n\n"
