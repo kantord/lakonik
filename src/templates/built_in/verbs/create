@@ -1,1 +1,1 @@
-{% extends "verbs/base/base" %}{% block base %}create for me a(n) {{description}}{% endblock %}
+{% extends "verbs/base/base" %}{% block body %}create for me a(n) {{description}}{% endblock %}
