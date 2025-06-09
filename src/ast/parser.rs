@@ -22,7 +22,7 @@ pub struct Vocative {
 
 /// A simple verb template that the user can use
 #[derive(Debug, PartialEq, Serialize, Clone)]
-#[serde(tag = "type", rename = "verb")]
+#[serde(tag = "type", rename = "simple")]
 pub struct SimpleVerb {
     pub range: Range,
     pub name: String,

@@ -22,7 +22,7 @@ vocative:
   name: whitespace
 verb:
   Simple:
-    type: verb
+    type: simple
     range:
       start:
         line: 0
