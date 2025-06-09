@@ -28,10 +28,20 @@ pub struct SimpleVerb {
     pub name: String,
 }
 
+/// A verb assignment that defines a new template in place
+#[derive(Debug, PartialEq, Serialize, Clone)]
+#[serde(tag = "type", rename = "assignment")]
+pub struct VerbAssignment {
+    pub range: Range,
+    pub name: String,
+    pub value: String,
+}
+
 #[derive(Debug, PartialEq, Serialize, Clone)]
 #[serde(untagged)]
 pub enum Verb {
     Simple(SimpleVerb),
+    Assignment(VerbAssignment),
 }
 
 /// Contains free-from text
@@ -85,7 +95,7 @@ fn vocative(input: Span) -> IResult<Span, Vocative> {
     .parse(input)
 }
 
-fn verb(input: Span) -> IResult<Span, Verb> {
+fn verb_simple(input: Span) -> IResult<Span, Verb> {
     map(lowercase_name, |name| {
         Verb::Simple(SimpleVerb {
             range: range(name),
@@ -93,6 +103,21 @@ fn verb(input: Span) -> IResult<Span, Verb> {
         })
     })
     .parse(input)
+}
+
+fn verb_assignment(input: Span) -> IResult<Span, Verb> {
+    map(tag("~create=(create for me a)"), |value: Span| {
+        Verb::Assignment(VerbAssignment {
+            range: range(value),
+            name: "create".to_string(),
+            value: "create for me a".to_string(),
+        })
+    })
+    .parse(input)
+}
+
+fn verb(input: Span) -> IResult<Span, Verb> {
+    alt((verb_simple, verb_assignment)).parse(input)
 }
 
 fn freeform_part(input: Span) -> IResult<Span, FreeformPart> {
@@ -191,6 +216,7 @@ mod tests {
     #[case("   whitespace allow")]
     #[case("   whitespace magic   ")]
     #[case("want some whitespace   ")]
+    #[case("qwen3 ~create=(create for me a) @hello.txt")]
     fn parse_statement_snapshot(#[case] input: &str) {
         let mut s = insta::Settings::clone_current();
         s.set_snapshot_suffix(input.replace(' ', "_").to_string());

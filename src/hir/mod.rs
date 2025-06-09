@@ -123,6 +123,7 @@ impl AnalyzedVerb {
     pub fn get_template_name(&self) -> &str {
         match &self.node {
             Verb::Simple(node) => &node.name,
+            Verb::Assignment(node) => &node.name,
         }
     }
 }
@@ -137,6 +138,7 @@ impl Analyzed for AnalyzedVerb {
     fn get_range(&self) -> &Range {
         match &self.node {
             Verb::Simple(node) => &node.range,
+            Verb::Assignment(node) => &node.range,
         }
     }
 }
