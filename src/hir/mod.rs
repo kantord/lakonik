@@ -49,6 +49,7 @@ pub enum AnalyzedPart {
 #[derive(Debug, Clone)]
 pub struct AnalyzedVerb {
     pub node: Verb,
+    pub template_name: String,
     pub hover_text: String,
 }
 
@@ -100,6 +101,10 @@ impl Analyzable for Verb {
     fn analyze(&self, _ctx: &mut AnalysisContext) -> Self::AnalyzedNode {
         AnalyzedVerb {
             node: self.clone(),
+            template_name: match self {
+                Verb::Simple(node) => node.name.clone(),
+                Verb::Assignment(node) => node.name.clone(),
+            },
             hover_text: "This is a verb".to_string(),
         }
     }
@@ -119,15 +124,15 @@ impl Analyzable for Sentence {
     }
 }
 
-impl AnalyzedVerb {
-    pub fn get_template_name(&self) -> &str {
-        match &self.node {
-            Verb::Simple(node) => &node.name,
-            Verb::Assignment(node) => &node.name,
-        }
-    }
-}
-
+// impl AnalyzedVerb {
+//     pub fn get_template_name(&self) -> &str {
+//         match &self.node {
+//             Verb::Simple(node) => &node.name,
+//             Verb::Assignment(node) => &node.name,
+//         }
+//     }
+// }
+//
 impl Analyzed for AnalyzedVocative {
     fn get_range(&self) -> &Range {
         &self.node.range
