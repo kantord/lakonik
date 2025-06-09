@@ -354,13 +354,11 @@ mod tests {
         let actual = get_hover_text(raw_input).await;
 
         match expected_pat {
-            // We expect *no* hover text.
             None => assert!(
                 actual.is_none(),
                 "expected no hover text, but got `{actual:?}`"
             ),
 
-            // We expect hover text that matches the regex pattern.
             Some(pat) => {
                 let text = actual.expect("expected some hover text, got `None`");
                 let re = Regex::new(pat).expect("invalid regex");
