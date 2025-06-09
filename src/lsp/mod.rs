@@ -71,14 +71,13 @@ impl LanguageServer for ServerState {
 
         Box::pin(async move {
             if let Some(analyzed) = analyzed_opt
-                && let Some(hover_text) = find_hover_text(&analyzed, &pos) {
-                    return Ok(Some(Hover {
-                        contents: HoverContents::Scalar(MarkedString::String(
-                            hover_text.to_string(),
-                        )),
-                        range: None,
-                    }));
-                }
+                && let Some(hover_text) = find_hover_text(&analyzed, &pos)
+            {
+                return Ok(Some(Hover {
+                    contents: HoverContents::Scalar(MarkedString::String(hover_text.to_string())),
+                    range: None,
+                }));
+            }
             Ok(None)
         })
     }
