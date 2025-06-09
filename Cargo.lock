@@ -876,6 +876,7 @@ dependencies = [
  "minijinja",
  "nom",
  "nom_locate",
+ "regex",
  "rig-core",
  "rstest",
  "serde",

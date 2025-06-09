@@ -61,7 +61,7 @@ pub fn build_prompt(result: &AnalyzedSentence) -> String {
         description,
     };
     let template = environment
-        .get_template(&format!("verbs/{}", &result.verb.template_name))
+        .get_template(&result.verb.template_name)
         .unwrap();
 
     template.render(context).unwrap()

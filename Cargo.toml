@@ -29,6 +29,7 @@ directories = "6.0.0"
 
 [dev-dependencies]
 insta = { version = "1.43.1", features = ["yaml"] }
+regex = "1.11.1"
 rstest = "0.25.0"
 tracing = "0.1.41"
 
