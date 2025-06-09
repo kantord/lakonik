@@ -1,4 +1,6 @@
 #![allow(dead_code)]
+use lsp_types::Range;
+
 use crate::ast::{FilePathPart, FreeformPart, InlineShellPart, Part, Sentence, Verb, Vocative};
 
 pub struct AnalysisContext {}
@@ -7,6 +9,10 @@ pub trait Analyzable {
     type AnalyzedNode;
 
     fn analyze(&self, ctx: &mut AnalysisContext) -> Self::AnalyzedNode;
+}
+
+pub trait Analyzed {
+    fn get_range(&self) -> &Range;
 }
 
 #[derive(Clone, Debug)]
@@ -40,7 +46,7 @@ pub enum AnalyzedPart {
     InlineShell(AnalyzedInlineShellPart),
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug, Clone)]
 pub struct AnalyzedVerb {
     pub node: Verb,
     pub hover_text: String,
@@ -109,6 +115,38 @@ impl Analyzable for Sentence {
             verb: self.verb.analyze(_ctx),
             vocative: self.vocative.analyze(_ctx),
             parts: self.parts.iter().map(|part| part.analyze(_ctx)).collect(),
+        }
+    }
+}
+
+impl AnalyzedVerb {
+    pub fn get_template_name(&self) -> &str {
+        match &self.node {
+            Verb::Simple(node) => &node.name,
+        }
+    }
+}
+
+impl Analyzed for AnalyzedVocative {
+    fn get_range(&self) -> &Range {
+        &self.node.range
+    }
+}
+
+impl Analyzed for AnalyzedVerb {
+    fn get_range(&self) -> &Range {
+        match &self.node {
+            Verb::Simple(node) => &node.range,
+        }
+    }
+}
+
+impl Analyzed for AnalyzedPart {
+    fn get_range(&self) -> &Range {
+        match self {
+            AnalyzedPart::Freeform(part) => &part.node.range,
+            AnalyzedPart::FilePath(part) => &part.node.range,
+            AnalyzedPart::InlineShell(part) => &part.node.range,
         }
     }
 }

@@ -21,15 +21,16 @@ vocative:
       character: 5
   name: qwen3
 verb:
-  type: verb
-  range:
-    start:
-      line: 0
-      character: 6
-    end:
-      line: 0
-      character: 12
-  name: create
+  Simple:
+    type: verb
+    range:
+      start:
+        line: 0
+        character: 6
+      end:
+        line: 0
+        character: 12
+    name: create
 parts:
   - InlineShell:
       type: inline_shell

@@ -20,12 +20,17 @@ pub struct Vocative {
     pub name: String,
 }
 
-/// Verbs are actions/capabilities the entity is expected to perform
+/// A simple verb template that the user can use
 #[derive(Debug, PartialEq, Serialize, Clone)]
 #[serde(tag = "type", rename = "verb")]
-pub struct Verb {
+pub struct SimpleVerb {
     pub range: Range,
     pub name: String,
+}
+
+#[derive(Debug, PartialEq, Serialize, Clone)]
+pub enum Verb {
+    Simple(SimpleVerb),
 }
 
 /// Contains free-from text
@@ -79,9 +84,11 @@ fn vocative(input: Span) -> IResult<Span, Vocative> {
 }
 
 fn verb(input: Span) -> IResult<Span, Verb> {
-    map(lowercase_name, |name| Verb {
-        range: range(name),
-        name: name.to_string(),
+    map(lowercase_name, |name| {
+        Verb::Simple(SimpleVerb {
+            range: range(name),
+            name: name.to_string(),
+        })
     })
     .parse(input)
 }

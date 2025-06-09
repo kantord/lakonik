@@ -23,7 +23,7 @@ use tower::ServiceBuilder;
 use tracing::Level;
 use utils::update_document;
 
-use crate::hir::{AnalyzedPart, AnalyzedSentence};
+use crate::hir::{Analyzed, AnalyzedPart, AnalyzedSentence};
 
 pub struct DocumentState {
     analyzed: AnalyzedSentence,
@@ -177,11 +177,11 @@ pub async fn run_lsp_server() {
 }
 
 fn find_hover_text<'a>(analyzed: &'a AnalyzedSentence, pos: &Position) -> Option<&'a str> {
-    if analyzed.vocative.node.range.contains_position(pos) {
+    if analyzed.vocative.get_range().contains_position(pos) {
         return Some(&analyzed.vocative.hover_text);
     }
 
-    if analyzed.verb.node.range.contains_position(pos) {
+    if analyzed.verb.get_range().contains_position(pos) {
         return Some(&analyzed.verb.hover_text);
     }
 

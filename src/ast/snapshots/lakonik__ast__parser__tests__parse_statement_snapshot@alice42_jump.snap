@@ -21,13 +21,14 @@ vocative:
       character: 7
   name: alice42
 verb:
-  type: verb
-  range:
-    start:
-      line: 0
-      character: 8
-    end:
-      line: 0
-      character: 12
-  name: jump
+  Simple:
+    type: verb
+    range:
+      start:
+        line: 0
+        character: 8
+      end:
+        line: 0
+        character: 12
+    name: jump
 parts: []

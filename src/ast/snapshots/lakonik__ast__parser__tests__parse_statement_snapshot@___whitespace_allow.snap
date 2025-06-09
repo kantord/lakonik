@@ -21,13 +21,14 @@ vocative:
       character: 13
   name: whitespace
 verb:
-  type: verb
-  range:
-    start:
-      line: 0
-      character: 14
-    end:
-      line: 0
-      character: 19
-  name: allow
+  Simple:
+    type: verb
+    range:
+      start:
+        line: 0
+        character: 14
+      end:
+        line: 0
+        character: 19
+    name: allow
 parts: []

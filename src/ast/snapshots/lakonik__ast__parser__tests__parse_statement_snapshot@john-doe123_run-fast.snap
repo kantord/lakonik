@@ -21,13 +21,14 @@ vocative:
       character: 11
   name: john-doe123
 verb:
-  type: verb
-  range:
-    start:
-      line: 0
-      character: 12
-    end:
-      line: 0
-      character: 20
-  name: run-fast
+  Simple:
+    type: verb
+    range:
+      start:
+        line: 0
+        character: 12
+      end:
+        line: 0
+        character: 20
+    name: run-fast
 parts: []
