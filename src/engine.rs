@@ -131,6 +131,7 @@ mod tests {
     #[case("qwen3 create $(expr 5 - 3)")]
     #[case("qwen3 create $(echo \"hello\nworld\" | grep world)")]
     #[case("robot ~testverbdeleteme1=(test template delete me: ) $(expr 5 - 3)")]
+    #[case("robot ~testverbdeleteme2 = (hello)")]
     fn parse_statement_snapshot(#[case] input: &str) {
         let mut s = insta::Settings::clone_current();
         s.set_snapshot_suffix(input.replace(' ', "_").to_string());
