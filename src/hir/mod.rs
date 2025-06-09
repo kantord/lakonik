@@ -131,7 +131,7 @@ impl AnalyzedVerb {
     /// Creates a template if it doeds not exist but can be created
     pub fn ensure_template(&self) {
         match &self.node {
-            Verb::Simple(_) => return,
+            Verb::Simple(_) => (),
             Verb::Assignment(node) => {
                 let template_name = format!("verbs/{}", node.name);
 
