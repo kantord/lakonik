@@ -21,14 +21,13 @@ vocative:
       character: 7
   name: my-name
 verb:
-  Simple:
-    type: simple
-    range:
-      start:
-        line: 0
-        character: 8
-      end:
-        line: 0
-        character: 17
-    name: jump-fast
+  type: simple
+  range:
+    start:
+      line: 0
+      character: 8
+    end:
+      line: 0
+      character: 17
+  name: jump-fast
 parts: []

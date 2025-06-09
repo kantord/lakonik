@@ -21,16 +21,15 @@ vocative:
       character: 4
   name: want
 verb:
-  Simple:
-    type: simple
-    range:
-      start:
-        line: 0
-        character: 5
-      end:
-        line: 0
-        character: 9
-    name: some
+  type: simple
+  range:
+    start:
+      line: 0
+      character: 5
+    end:
+      line: 0
+      character: 9
+  name: some
 parts:
   - Freeform:
       type: freeform

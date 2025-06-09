@@ -21,14 +21,13 @@ vocative:
       character: 5
   name: john-
 verb:
-  Simple:
-    type: simple
-    range:
-      start:
-        line: 0
-        character: 6
-      end:
-        line: 0
-        character: 9
-    name: run
+  type: simple
+  range:
+    start:
+      line: 0
+      character: 6
+    end:
+      line: 0
+      character: 9
+  name: run
 parts: []

@@ -21,16 +21,15 @@ vocative:
       character: 5
   name: qwen3
 verb:
-  Simple:
-    type: simple
-    range:
-      start:
-        line: 0
-        character: 6
-      end:
-        line: 0
-        character: 12
-    name: create
+  type: simple
+  range:
+    start:
+      line: 0
+      character: 6
+    end:
+      line: 0
+      character: 12
+  name: create
 parts:
   - FilePath:
       type: filepath

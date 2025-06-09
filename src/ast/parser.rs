@@ -29,6 +29,7 @@ pub struct SimpleVerb {
 }
 
 #[derive(Debug, PartialEq, Serialize, Clone)]
+#[serde(untagged)]
 pub enum Verb {
     Simple(SimpleVerb),
 }

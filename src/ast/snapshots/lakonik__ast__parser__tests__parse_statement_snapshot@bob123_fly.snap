@@ -21,14 +21,13 @@ vocative:
       character: 6
   name: bob123
 verb:
-  Simple:
-    type: simple
-    range:
-      start:
-        line: 0
-        character: 7
-      end:
-        line: 0
-        character: 10
-    name: fly
+  type: simple
+  range:
+    start:
+      line: 0
+      character: 7
+    end:
+      line: 0
+      character: 10
+  name: fly
 parts: []
