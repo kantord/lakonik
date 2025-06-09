@@ -107,10 +107,15 @@ impl Analyzable for Verb {
             Verb::Assignment(node) => node.name.clone(),
         };
         let template_name = format!("verbs/{}", template_name);
-        let template_source = get_built_in_templates()
+        let mut template_source = get_built_in_templates()
             .find(|t| t.path == template_name)
             .map(|t| t.contents.clone())
             .unwrap_or_else(|| "*N/A*".to_string());
+
+        if let Verb::Assignment(node) = self {
+            template_source = node.value.clone();
+        }
+
         let hover_text = format!(
             "_Verb_ **{}**\n\n```\n{}\n```",
             template_name, template_source

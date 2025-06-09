@@ -339,6 +339,10 @@ mod tests {
         "test c***reate foobar",
         Some(r"(?s)_Verb_.*create.*create for me a.*")
     )]
+    #[case(
+        "test ~f***oo=(lorem ipsum) foobar",
+        Some(r"(?s)_Verb_.*foo.*lorem ipsum.*")
+    )]
     #[case("test ***create foobar", Some(r"_Verb_.*create.*"))]
     #[case("test create foo***bar", Some(r"^This is a part"))]
     #[case(
