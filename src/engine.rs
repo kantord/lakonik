@@ -133,6 +133,14 @@ mod tests {
     #[case("robot ~testverbdeleteme1=(test template delete me: ) $(expr 5 - 3)")]
     #[case("robot ~testverbdeleteme2 = (hello)")]
     fn parse_statement_snapshot(#[case] input: &str) {
+        let user_templates = crate::templates::get_user_templates();
+        let test_templates = user_templates
+            .filter(|t| t.path.starts_with("verbs/testverbdeleteme"))
+            .collect::<Vec<_>>();
+        for template in test_templates {
+            crate::templates::delete_user_template(&template.path);
+        }
+
         let mut s = insta::Settings::clone_current();
         s.set_snapshot_suffix(input.replace(' ', "_").to_string());
         let _guard = s.bind_to_scope();

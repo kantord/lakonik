@@ -3,4 +3,4 @@ source: src/engine.rs
 expression: simplified_result
 ---
 attachments: []
-prompt: hello
+prompt: "hello "

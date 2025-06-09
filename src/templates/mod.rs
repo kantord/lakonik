@@ -89,11 +89,24 @@ pub fn get_user_templates() -> impl Iterator<Item = Template> {
         .flat_map(|dir| templates_from_dir(dir, TemplateSource::User))
 }
 
-pub fn create_user_template(template_name: &str, template_soure: &str) {
+pub fn create_user_template(template_name: &str, template_source: &str) {
     if let Some(dir) = user_template_dir() {
         fs::create_dir_all(&dir).expect("Failed to create user template directory");
         let file_path = dir.join(template_name);
-        fs::write(file_path, template_soure).expect("Failed to write user template");
+        fs::write(file_path, format!("{{% extends \"verbs/base/base\" %}}{{% block body %}}{template_source} {{{{description}}}}{{% endblock %}}")).expect("Failed to write user template");
+    } else {
+        panic!("User template directory does not exist");
+    }
+}
+
+pub fn delete_user_template(template_name: &str) {
+    if let Some(dir) = user_template_dir() {
+        let file_path = dir.join(template_name);
+        if file_path.exists() {
+            fs::remove_file(file_path).expect("Failed to delete user template");
+        } else {
+            eprintln!("Template {} does not exist", template_name);
+        }
     } else {
         panic!("User template directory does not exist");
     }
@@ -101,7 +114,6 @@ pub fn create_user_template(template_name: &str, template_soure: &str) {
 
 pub fn build_environment() -> Environment<'static> {
     let mut env = Environment::new();
-
 
     // Built-ins first; user files can override.
     get_built_in_templates()

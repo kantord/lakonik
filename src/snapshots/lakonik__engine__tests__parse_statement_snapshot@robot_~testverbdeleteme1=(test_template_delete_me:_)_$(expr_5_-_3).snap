@@ -3,4 +3,4 @@ source: src/engine.rs
 expression: simplified_result
 ---
 attachments: []
-prompt: "test template delete me: "
+prompt: "test template delete me:  \n\nCommand: expr 5 - 3\nOutput:\n2\n\n"
