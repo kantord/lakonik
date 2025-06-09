@@ -133,6 +133,10 @@ mod tests {
     #[case("robot ~testverbdeleteme1=(test template delete me: ) $(expr 5 - 3)")]
     #[case("robot ~testverbdeleteme2 = (hello)")]
     fn parse_statement_snapshot(#[case] input: &str) {
+        let tmp = tempfile::tempdir().unwrap();
+        unsafe {
+            std::env::set_var("LAKONIK_CONFIG", tmp.path());
+        }
         let user_templates = crate::templates::get_user_templates();
         let test_templates = user_templates
             .filter(|t| t.path.starts_with("verbs/testverbdeleteme"))

@@ -70,15 +70,14 @@ impl LanguageServer for ServerState {
         let analyzed_opt = self.docs.get(&uri).map(|doc| doc.analyzed.clone());
 
         Box::pin(async move {
-            if let Some(analyzed) = analyzed_opt
-                && let Some(hover_text) = find_hover_text(&analyzed, &pos)
-            {
-                return Ok(Some(Hover {
-                    contents: HoverContents::Scalar(MarkedString::String(hover_text.to_string())),
+            let hover = analyzed_opt.and_then(|analyzed| {
+                find_hover_text(&analyzed, &pos).map(|txt| Hover {
+                    contents: HoverContents::Scalar(MarkedString::String(txt.to_string())),
                     range: None,
-                }));
-            }
-            Ok(None)
+                })
+            });
+
+            Ok(hover)
         })
     }
 
