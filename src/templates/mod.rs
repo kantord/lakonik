@@ -123,16 +123,18 @@ pub fn delete_user_template(template_name: &str) {
     }
 }
 
+pub fn get_all_templates() -> impl Iterator<Item = Template> {
+    // Built-ins first; user files can override.
+    get_built_in_templates().chain(get_user_templates())
+}
+
 pub fn build_environment() -> Environment<'static> {
     let mut env = Environment::new();
 
-    // Built-ins first; user files can override.
-    get_built_in_templates()
-        .chain(get_user_templates())
-        .for_each(|t| {
-            env.add_template_owned(t.path, t.contents)
-                .expect("Failed to add template");
-        });
+    get_all_templates().for_each(|t| {
+        env.add_template_owned(t.path, t.contents)
+            .expect("Failed to add template");
+    });
 
     env
 }

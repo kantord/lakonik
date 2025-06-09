@@ -3,7 +3,7 @@ use lsp_types::Range;
 
 use crate::{
     ast::{FilePathPart, FreeformPart, InlineShellPart, Part, Sentence, Verb, Vocative},
-    templates::{get_built_in_templates, get_user_templates},
+    templates::{get_all_templates, get_user_templates},
 };
 
 pub struct AnalysisContext {}
@@ -107,7 +107,7 @@ impl Analyzable for Verb {
             Verb::Assignment(node) => node.name.clone(),
         };
         let template_name = format!("verbs/{}", template_name);
-        let mut template_source = get_built_in_templates()
+        let mut template_source = get_all_templates()
             .find(|t| t.path == template_name)
             .map(|t| t.contents.clone())
             .unwrap_or_else(|| "*N/A*".to_string());
