@@ -60,6 +60,7 @@ pub struct InlineShellPart {
 
 /// Generic parts that can contain objects or free form text
 #[derive(Debug, PartialEq, Serialize, Clone)]
+#[serde(untagged)]
 pub enum Part {
     Freeform(FreeformPart),
     FilePath(FilePathPart),

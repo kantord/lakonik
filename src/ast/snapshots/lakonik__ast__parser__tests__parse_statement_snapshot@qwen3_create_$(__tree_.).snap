@@ -31,13 +31,12 @@ verb:
       character: 12
   name: create
 parts:
-  - InlineShell:
-      type: inline_shell
-      range:
-        start:
-          line: 0
-          character: 15
-        end:
-          line: 0
-          character: 23
-      code: "  tree ."
+  - type: inline_shell
+    range:
+      start:
+        line: 0
+        character: 15
+      end:
+        line: 0
+        character: 23
+    code: "  tree ."

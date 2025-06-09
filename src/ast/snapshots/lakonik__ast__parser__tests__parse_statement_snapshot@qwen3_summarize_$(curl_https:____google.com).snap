@@ -31,13 +31,12 @@ verb:
       character: 15
   name: summarize
 parts:
-  - InlineShell:
-      type: inline_shell
-      range:
-        start:
-          line: 0
-          character: 18
-        end:
-          line: 0
-          character: 41
-      code: "curl https://google.com"
+  - type: inline_shell
+    range:
+      start:
+        line: 0
+        character: 18
+      end:
+        line: 0
+        character: 41
+    code: "curl https://google.com"

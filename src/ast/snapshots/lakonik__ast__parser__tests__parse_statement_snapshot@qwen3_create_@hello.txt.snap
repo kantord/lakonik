@@ -31,13 +31,12 @@ verb:
       character: 12
   name: create
 parts:
-  - FilePath:
-      type: filepath
-      range:
-        start:
-          line: 0
-          character: 14
-        end:
-          line: 0
-          character: 23
-      path: hello.txt
+  - type: filepath
+    range:
+      start:
+        line: 0
+        character: 14
+      end:
+        line: 0
+        character: 23
+    path: hello.txt

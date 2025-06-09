@@ -31,33 +31,30 @@ verb:
       character: 10
   name: edit
 parts:
-  - Freeform:
-      type: freeform
-      range:
-        start:
-          line: 0
-          character: 11
-        end:
-          line: 0
-          character: 14
-      text: foo
-  - FilePath:
-      type: filepath
-      range:
-        start:
-          line: 0
-          character: 16
-        end:
-          line: 0
-          character: 25
-      path: hello.txt
-  - Freeform:
-      type: freeform
-      range:
-        start:
-          line: 0
-          character: 26
-        end:
-          line: 0
-          character: 29
-      text: bar
+  - type: freeform
+    range:
+      start:
+        line: 0
+        character: 11
+      end:
+        line: 0
+        character: 14
+    text: foo
+  - type: filepath
+    range:
+      start:
+        line: 0
+        character: 16
+      end:
+        line: 0
+        character: 25
+    path: hello.txt
+  - type: freeform
+    range:
+      start:
+        line: 0
+        character: 26
+      end:
+        line: 0
+        character: 29
+    text: bar

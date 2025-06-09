@@ -31,23 +31,21 @@ verb:
       character: 10
   name: edit
 parts:
-  - InlineShell:
-      type: inline_shell
-      range:
-        start:
-          line: 0
-          character: 13
-        end:
-          line: 0
-          character: 15
-      code: ls
-  - Freeform:
-      type: freeform
-      range:
-        start:
-          line: 0
-          character: 17
-        end:
-          line: 0
-          character: 20
-      text: foo
+  - type: inline_shell
+    range:
+      start:
+        line: 0
+        character: 13
+      end:
+        line: 0
+        character: 15
+    code: ls
+  - type: freeform
+    range:
+      start:
+        line: 0
+        character: 17
+      end:
+        line: 0
+        character: 20
+    text: foo

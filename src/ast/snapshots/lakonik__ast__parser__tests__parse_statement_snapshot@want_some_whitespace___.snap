@@ -31,13 +31,12 @@ verb:
       character: 9
   name: some
 parts:
-  - Freeform:
-      type: freeform
-      range:
-        start:
-          line: 0
-          character: 10
-        end:
-          line: 0
-          character: 20
-      text: whitespace
+  - type: freeform
+    range:
+      start:
+        line: 0
+        character: 10
+      end:
+        line: 0
+        character: 20
+    text: whitespace
