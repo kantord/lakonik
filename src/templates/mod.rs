@@ -104,11 +104,7 @@ pub fn delete_user_template(template_name: &str) {
         let file_path = dir.join(template_name);
         if file_path.exists() {
             fs::remove_file(file_path).expect("Failed to delete user template");
-        } else {
-            eprintln!("Template {} does not exist", template_name);
         }
-    } else {
-        panic!("User template directory does not exist");
     }
 }
 
