@@ -58,7 +58,7 @@ async fn cmd_eval(verbose: bool, input: &[String]) -> Result<()> {
     let json =
         serde_json::to_string(&prompt_builder_result).expect("Failed to serialize result to JSON");
 
-    println!("{}", json);
+    println!("{json}");
     Ok(())
 }
 

@@ -21,7 +21,7 @@ pub fn format_cmd_result(code: &str, environment: &Environment) -> String {
     let mut reader = cmd
         .stderr_to_stdout()
         .reader()
-        .unwrap_or_else(|_| panic!("could not run command: {}", code));
+        .unwrap_or_else(|_| panic!("could not run command: {code}"));
     let mut result = String::new();
 
     reader
