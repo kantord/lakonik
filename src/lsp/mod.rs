@@ -335,7 +335,10 @@ mod tests {
     #[case("qw***en3 create foobar", Some(r"vocative: qwen3$"))]
     #[case("hell***o create foobar", Some(r"vocative: hello$"))]
     #[case("foobar *** create lorem", None)]
-    #[case("test c***reate foobar", Some(r"(?s)_Verb_.*create.*create for me a.*"))]
+    #[case(
+        "test c***reate foobar",
+        Some(r"(?s)_Verb_.*create.*create for me a.*")
+    )]
     #[case("test ***create foobar", Some(r"_Verb_.*create.*"))]
     #[case("test create foo***bar", Some(r"^This is a part"))]
     #[case(
