@@ -9,7 +9,7 @@ range:
     character: 0
   end:
     line: 0
-    character: 42
+    character: 37
 vocative:
   type: vocative
   range:
@@ -29,15 +29,15 @@ verb:
     end:
       line: 0
       character: 13
-  name: create
+  name: foobar
   value: create for me a
 parts:
-  - type: filepath
+  - type: freeform
     range:
       start:
         line: 0
-        character: 33
+        character: 32
       end:
         line: 0
-        character: 42
-    path: hello.txt
+        character: 37
+    text: lorem

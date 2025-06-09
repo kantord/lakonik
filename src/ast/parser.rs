@@ -106,13 +106,16 @@ fn verb_simple(input: Span) -> IResult<Span, Verb> {
 }
 
 fn verb_assignment(input: Span) -> IResult<Span, Verb> {
-    map(tag("~create=(create for me a)"), |value: Span| {
-        Verb::Assignment(VerbAssignment {
-            range: range(value),
-            name: "create".to_string(),
-            value: "create for me a".to_string(),
-        })
-    })
+    map(
+        (tag("~"), lowercase_name, tag("=(create for me a)")),
+        |(_, name, _)| {
+            Verb::Assignment(VerbAssignment {
+                range: range(name),
+                name: name.to_string(),
+                value: "create for me a".to_string(),
+            })
+        },
+    )
     .parse(input)
 }
 
@@ -217,6 +220,7 @@ mod tests {
     #[case("   whitespace magic   ")]
     #[case("want some whitespace   ")]
     #[case("qwen3 ~create=(create for me a) @hello.txt")]
+    #[case("qwen3 ~foobar=(create for me a) lorem")]
     fn parse_statement_snapshot(#[case] input: &str) {
         let mut s = insta::Settings::clone_current();
         s.set_snapshot_suffix(input.replace(' ', "_").to_string());
