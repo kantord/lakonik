@@ -89,8 +89,19 @@ pub fn get_user_templates() -> impl Iterator<Item = Template> {
         .flat_map(|dir| templates_from_dir(dir, TemplateSource::User))
 }
 
+pub fn create_user_template(template_name: &str, template_soure: &str) {
+    if let Some(dir) = user_template_dir() {
+        fs::create_dir_all(&dir).expect("Failed to create user template directory");
+        let file_path = dir.join(template_name);
+        fs::write(file_path, template_soure).expect("Failed to write user template");
+    } else {
+        panic!("User template directory does not exist");
+    }
+}
+
 pub fn build_environment() -> Environment<'static> {
     let mut env = Environment::new();
+
 
     // Built-ins first; user files can override.
     get_built_in_templates()

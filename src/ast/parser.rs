@@ -3,7 +3,7 @@ use nom::Parser;
 use nom::bytes::complete::{tag, take_until};
 use nom::character::complete::multispace1;
 use nom::character::complete::{alphanumeric1, multispace0};
-use nom::combinator::{all_consuming, map, opt};
+use nom::combinator::{all_consuming, map, opt, recognize};
 use nom::multi::separated_list1;
 use nom::sequence::{delimited, preceded};
 use nom::{IResult, branch::alt};
@@ -106,7 +106,7 @@ fn verb_simple(input: Span) -> IResult<Span, Verb> {
 }
 
 fn verb_assignment(input: Span) -> IResult<Span, Verb> {
-    map(
+    let get_parser = || {
         (
             tag("~"),
             lowercase_name,
@@ -118,15 +118,20 @@ fn verb_assignment(input: Span) -> IResult<Span, Verb> {
                     tag(")"),
                 ),
             ),
-        ),
-        |(_, name, value)| {
-            Verb::Assignment(VerbAssignment {
-                range: range(name),
-                name: name.to_string(),
-                value: value.to_string(),
-            })
-        },
-    )
+        )
+    };
+
+    let (_, range) = recognize(get_parser())
+        .map(|result| range(result))
+        .parse(input)?;
+
+    map(get_parser(), |(_, name, value)| {
+        Verb::Assignment(VerbAssignment {
+            range,
+            name: name.to_string(),
+            value: value.to_string(),
+        })
+    })
     .parse(input)
 }
 

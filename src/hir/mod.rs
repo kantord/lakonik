@@ -1,7 +1,10 @@
 #![allow(dead_code)]
 use lsp_types::Range;
 
-use crate::ast::{FilePathPart, FreeformPart, InlineShellPart, Part, Sentence, Verb, Vocative};
+use crate::{
+    ast::{FilePathPart, FreeformPart, InlineShellPart, Part, Sentence, Verb, Vocative},
+    templates::get_user_templates,
+};
 
 pub struct AnalysisContext {}
 
@@ -125,7 +128,19 @@ impl Analyzable for Sentence {
 }
 
 impl AnalyzedVerb {
-    pub fn ensure_template(&self) {}
+    /// Creates a template if it doeds not exist but can be created
+    pub fn ensure_template(&self) {
+        match &self.node {
+            Verb::Simple(_) => return,
+            Verb::Assignment(node) => {
+                let template_name = format!("verbs/{}", node.name);
+
+                if !get_user_templates().any(|t| t.path == template_name) {
+                    crate::templates::create_user_template(&template_name, &node.value);
+                }
+            }
+        }
+    }
 }
 
 impl Analyzed for AnalyzedVocative {

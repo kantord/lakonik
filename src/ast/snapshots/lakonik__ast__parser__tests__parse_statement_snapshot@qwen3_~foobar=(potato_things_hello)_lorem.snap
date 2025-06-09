@@ -25,10 +25,10 @@ verb:
   range:
     start:
       line: 0
-      character: 7
+      character: 6
     end:
       line: 0
-      character: 13
+      character: 35
   name: foobar
   value: potato things hello
 parts:
