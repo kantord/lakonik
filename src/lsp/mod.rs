@@ -207,6 +207,7 @@ fn find_hover_text<'a>(analyzed: &'a AnalyzedSentence, pos: &Position) -> Option
 #[cfg(test)]
 mod tests {
     use super::*;
+
     use async_lsp::{
         LanguageServer, MainLoop, ServerSocket, client_monitor::ClientProcessMonitorLayer,
         concurrency::ConcurrencyLayer, panic::CatchUnwindLayer, router::Router,
@@ -217,6 +218,7 @@ mod tests {
         MarkedString, Position, TextDocumentIdentifier, TextDocumentItem,
         TextDocumentPositionParams, Url, WorkDoneProgressParams,
     };
+    use regex::Regex;
     use rstest::rstest;
     use tokio::io::duplex;
     use tokio::task::JoinHandle;
@@ -330,19 +332,36 @@ mod tests {
     }
 
     #[rstest]
-    #[case("qw***en3 create foobar", Some("Hover text for vocative: qwen3"))]
-    #[case("hell***o create foobar", Some("Hover text for vocative: hello"))]
+    #[case("qw***en3 create foobar", Some(r"vocative: qwen3$"))]
+    #[case("hell***o create foobar", Some(r"vocative: hello$"))]
     #[case("foobar *** create lorem", None)]
-    #[case("test c***reate foobar", Some("This is a verb"))]
-    #[case("test ***create foobar", Some("This is a verb"))]
-    #[case("test create foo***bar", Some("This is a part"))]
+    #[case("test c***reate foobar", Some(r"(?s)_Verb_.*create.*create for me a.*"))]
+    #[case("test ***create foobar", Some(r"_Verb_.*create.*"))]
+    #[case("test create foo***bar", Some(r"^This is a part"))]
     #[case(
         "test create test module in $(tre***e .)",
-        Some(r#"Will expand to the results of `tree .`"#)
+        Some(r"expand to the results of `tree .`")
     )]
     #[tokio::test]
-    async fn hover_cases(#[case] raw_input: &str, #[case] expected_hover: Option<&str>) {
+    async fn hover_cases(#[case] raw_input: &str, #[case] expected_pat: Option<&str>) {
         let actual = get_hover_text(raw_input).await;
-        assert_eq!(actual.as_deref(), expected_hover);
+
+        match expected_pat {
+            // We expect *no* hover text.
+            None => assert!(
+                actual.is_none(),
+                "expected no hover text, but got `{actual:?}`"
+            ),
+
+            // We expect hover text that matches the regex pattern.
+            Some(pat) => {
+                let text = actual.expect("expected some hover text, got `None`");
+                let re = Regex::new(pat).expect("invalid regex");
+                assert!(
+                    re.is_match(&text),
+                    "regex `{pat}` did not match hover text `{text}`"
+                );
+            }
+        }
     }
 }

@@ -3,7 +3,7 @@ use lsp_types::Range;
 
 use crate::{
     ast::{FilePathPart, FreeformPart, InlineShellPart, Part, Sentence, Verb, Vocative},
-    templates::get_user_templates,
+    templates::{get_built_in_templates, get_user_templates},
 };
 
 pub struct AnalysisContext {}
@@ -102,14 +102,25 @@ impl Analyzable for Verb {
     type AnalyzedNode = AnalyzedVerb;
 
     fn analyze(&self, _ctx: &mut AnalysisContext) -> Self::AnalyzedNode {
-        AnalyzedVerb {
+        let template_name = match self {
+            Verb::Simple(node) => node.name.clone(),
+            Verb::Assignment(node) => node.name.clone(),
+        };
+        let template_name = format!("verbs/{}", template_name);
+        let template_source = get_built_in_templates()
+            .find(|t| t.path == template_name)
+            .map(|t| t.contents.clone())
+            .unwrap_or_else(|| "*N/A*".to_string());
+        let hover_text = format!(
+            "_Verb_ **{}**\n\n```\n{}\n```",
+            template_name, template_source
+        );
+
+        return AnalyzedVerb {
             node: self.clone(),
-            template_name: match self {
-                Verb::Simple(node) => node.name.clone(),
-                Verb::Assignment(node) => node.name.clone(),
-            },
-            hover_text: "This is a verb".to_string(),
-        }
+            template_name,
+            hover_text,
+        };
     }
 }
 
