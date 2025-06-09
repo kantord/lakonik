@@ -21,7 +21,7 @@ vocative:
       character: 5
   name: qwen3
 verb:
-  type: verb
+  type: simple
   range:
     start:
       line: 0
@@ -31,23 +31,21 @@ verb:
       character: 12
   name: delete
 parts:
-  - Freeform:
-      type: freeform
-      range:
-        start:
-          line: 0
-          character: 13
-        end:
-          line: 0
-          character: 16
-      text: bar
-  - InlineShell:
-      type: inline_shell
-      range:
-        start:
-          line: 0
-          character: 19
-        end:
-          line: 0
-          character: 27
-      code: git diff
+  - type: freeform
+    range:
+      start:
+        line: 0
+        character: 13
+      end:
+        line: 0
+        character: 16
+    text: bar
+  - type: inline_shell
+    range:
+      start:
+        line: 0
+        character: 19
+      end:
+        line: 0
+        character: 27
+    code: git diff

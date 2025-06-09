@@ -3,7 +3,7 @@ use nom::Parser;
 use nom::bytes::complete::{tag, take_until};
 use nom::character::complete::multispace1;
 use nom::character::complete::{alphanumeric1, multispace0};
-use nom::combinator::{all_consuming, map, opt};
+use nom::combinator::{all_consuming, map, opt, recognize};
 use nom::multi::separated_list1;
 use nom::sequence::{delimited, preceded};
 use nom::{IResult, branch::alt};
@@ -20,12 +20,28 @@ pub struct Vocative {
     pub name: String,
 }
 
-/// Verbs are actions/capabilities the entity is expected to perform
+/// A simple verb template that the user can use
 #[derive(Debug, PartialEq, Serialize, Clone)]
-#[serde(tag = "type", rename = "verb")]
-pub struct Verb {
+#[serde(tag = "type", rename = "simple")]
+pub struct SimpleVerb {
     pub range: Range,
     pub name: String,
+}
+
+/// A verb assignment that defines a new template in place
+#[derive(Debug, PartialEq, Serialize, Clone)]
+#[serde(tag = "type", rename = "assignment")]
+pub struct VerbAssignment {
+    pub range: Range,
+    pub name: String,
+    pub value: String,
+}
+
+#[derive(Debug, PartialEq, Serialize, Clone)]
+#[serde(untagged)]
+pub enum Verb {
+    Simple(SimpleVerb),
+    Assignment(VerbAssignment),
 }
 
 /// Contains free-from text
@@ -54,6 +70,7 @@ pub struct InlineShellPart {
 
 /// Generic parts that can contain objects or free form text
 #[derive(Debug, PartialEq, Serialize, Clone)]
+#[serde(untagged)]
 pub enum Part {
     Freeform(FreeformPart),
     FilePath(FilePathPart),
@@ -78,12 +95,48 @@ fn vocative(input: Span) -> IResult<Span, Vocative> {
     .parse(input)
 }
 
-fn verb(input: Span) -> IResult<Span, Verb> {
-    map(lowercase_name, |name| Verb {
-        range: range(name),
-        name: name.to_string(),
+fn verb_simple(input: Span) -> IResult<Span, Verb> {
+    map(lowercase_name, |name| {
+        Verb::Simple(SimpleVerb {
+            range: range(name),
+            name: name.to_string(),
+        })
     })
     .parse(input)
+}
+
+fn verb_assignment(input: Span) -> IResult<Span, Verb> {
+    let get_parser = || {
+        (
+            tag("~"),
+            lowercase_name,
+            preceded(
+                multispace0,
+                delimited(
+                    delimited(tag("="), multispace0, tag("(")),
+                    take_until(")"),
+                    tag(")"),
+                ),
+            ),
+        )
+    };
+
+    let (_, range) = recognize(get_parser())
+        .map(|result| range(result))
+        .parse(input)?;
+
+    map(get_parser(), |(_, name, value)| {
+        Verb::Assignment(VerbAssignment {
+            range,
+            name: name.to_string(),
+            value: value.to_string(),
+        })
+    })
+    .parse(input)
+}
+
+fn verb(input: Span) -> IResult<Span, Verb> {
+    alt((verb_simple, verb_assignment)).parse(input)
 }
 
 fn freeform_part(input: Span) -> IResult<Span, FreeformPart> {
@@ -182,6 +235,10 @@ mod tests {
     #[case("   whitespace allow")]
     #[case("   whitespace magic   ")]
     #[case("want some whitespace   ")]
+    #[case("qwen3 ~create=(create for me a) @hello.txt")]
+    #[case("qwen3 ~foobar   =(create for me a) lorem")]
+    #[case("qwen3 ~foobar=    (create for me a) lorem")]
+    #[case("qwen3 ~foobar=(potato things hello) lorem")]
     fn parse_statement_snapshot(#[case] input: &str) {
         let mut s = insta::Settings::clone_current();
         s.set_snapshot_suffix(input.replace(' ', "_").to_string());

@@ -14,7 +14,7 @@ pub fn parse(input: &str) -> Option<Sentence> {
 pub fn update_document(docs: &mut HashMap<Url, DocumentState>, uri: Url, text: String) {
     if let Some(ast) = parse(&text) {
         let analyzed = ast.analyze(&mut AnalysisContext {});
-        eprintln!("Parsed document: {:?}", analyzed);
+        eprintln!("Parsed document: {analyzed:?}");
         docs.insert(uri, DocumentState { analyzed });
     } else {
         docs.remove(&uri);

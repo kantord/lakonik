@@ -21,7 +21,7 @@ vocative:
       character: 5
   name: qwen3
 verb:
-  type: verb
+  type: simple
   range:
     start:
       line: 0
@@ -31,33 +31,30 @@ verb:
       character: 10
   name: edit
 parts:
-  - Freeform:
-      type: freeform
-      range:
-        start:
-          line: 0
-          character: 11
-        end:
-          line: 0
-          character: 14
-      text: foo
-  - InlineShell:
-      type: inline_shell
-      range:
-        start:
-          line: 0
-          character: 17
-        end:
-          line: 0
-          character: 46
-      code: find . | grep hello | grep py
-  - Freeform:
-      type: freeform
-      range:
-        start:
-          line: 0
-          character: 48
-        end:
-          line: 0
-          character: 51
-      text: bar
+  - type: freeform
+    range:
+      start:
+        line: 0
+        character: 11
+      end:
+        line: 0
+        character: 14
+    text: foo
+  - type: inline_shell
+    range:
+      start:
+        line: 0
+        character: 17
+      end:
+        line: 0
+        character: 46
+    code: find . | grep hello | grep py
+  - type: freeform
+    range:
+      start:
+        line: 0
+        character: 48
+      end:
+        line: 0
+        character: 51
+    text: bar

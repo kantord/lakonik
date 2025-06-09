@@ -23,7 +23,7 @@ use tower::ServiceBuilder;
 use tracing::Level;
 use utils::update_document;
 
-use crate::hir::{AnalyzedPart, AnalyzedSentence};
+use crate::hir::{Analyzed, AnalyzedPart, AnalyzedSentence};
 
 pub struct DocumentState {
     analyzed: AnalyzedSentence,
@@ -70,17 +70,14 @@ impl LanguageServer for ServerState {
         let analyzed_opt = self.docs.get(&uri).map(|doc| doc.analyzed.clone());
 
         Box::pin(async move {
-            if let Some(analyzed) = analyzed_opt {
-                if let Some(hover_text) = find_hover_text(&analyzed, &pos) {
-                    return Ok(Some(Hover {
-                        contents: HoverContents::Scalar(MarkedString::String(
-                            hover_text.to_string(),
-                        )),
-                        range: None,
-                    }));
-                }
-            }
-            Ok(None)
+            let hover = analyzed_opt.and_then(|analyzed| {
+                find_hover_text(&analyzed, &pos).map(|txt| Hover {
+                    contents: HoverContents::Scalar(MarkedString::String(txt.to_string())),
+                    range: None,
+                })
+            });
+
+            Ok(hover)
         })
     }
 
@@ -177,11 +174,11 @@ pub async fn run_lsp_server() {
 }
 
 fn find_hover_text<'a>(analyzed: &'a AnalyzedSentence, pos: &Position) -> Option<&'a str> {
-    if analyzed.vocative.node.range.contains_position(pos) {
+    if analyzed.vocative.get_range().contains_position(pos) {
         return Some(&analyzed.vocative.hover_text);
     }
 
-    if analyzed.verb.node.range.contains_position(pos) {
+    if analyzed.verb.get_range().contains_position(pos) {
         return Some(&analyzed.verb.hover_text);
     }
 

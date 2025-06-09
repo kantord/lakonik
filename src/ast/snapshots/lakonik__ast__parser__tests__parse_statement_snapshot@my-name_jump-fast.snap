@@ -21,7 +21,7 @@ vocative:
       character: 7
   name: my-name
 verb:
-  type: verb
+  type: simple
   range:
     start:
       line: 0

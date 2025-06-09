@@ -9,7 +9,7 @@ range:
     character: 0
   end:
     line: 0
-    character: 24
+    character: 37
 vocative:
   type: vocative
   range:
@@ -21,22 +21,23 @@ vocative:
       character: 5
   name: qwen3
 verb:
-  type: simple
+  type: assignment
   range:
     start:
       line: 0
-      character: 6
+      character: 7
     end:
       line: 0
-      character: 12
-  name: create
+      character: 13
+  name: foobar
+  value: create for me a
 parts:
-  - type: inline_shell
+  - type: freeform
     range:
       start:
         line: 0
-        character: 15
+        character: 32
       end:
         line: 0
-        character: 23
-    code: "  tree ."
+        character: 37
+    text: lorem

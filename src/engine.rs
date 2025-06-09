@@ -21,7 +21,7 @@ pub fn format_cmd_result(code: &str, environment: &Environment) -> String {
     let mut reader = cmd
         .stderr_to_stdout()
         .reader()
-        .unwrap_or_else(|_| panic!("could not run command: {}", code));
+        .unwrap_or_else(|_| panic!("could not run command: {code}"));
     let mut result = String::new();
 
     reader
@@ -53,6 +53,7 @@ pub fn extract_description(sentence: &AnalyzedSentence, environment: &Environmen
 }
 
 pub fn build_prompt(result: &AnalyzedSentence) -> String {
+    result.verb.ensure_template();
     let environment = build_environment();
 
     let description = extract_description(result, &environment);
@@ -60,7 +61,7 @@ pub fn build_prompt(result: &AnalyzedSentence) -> String {
         description,
     };
     let template = environment
-        .get_template(&format!("verbs/{}", &result.verb.node.name))
+        .get_template(&format!("verbs/{}", &result.verb.template_name))
         .unwrap();
 
     template.render(context).unwrap()
@@ -129,7 +130,21 @@ mod tests {
     #[case("qwen3 create bar $(expr 2 + 3)")]
     #[case("qwen3 create $(expr 5 - 3)")]
     #[case("qwen3 create $(echo \"hello\nworld\" | grep world)")]
+    #[case("robot ~testverbdeleteme1=(test template delete me: ) $(expr 5 - 3)")]
+    #[case("robot ~testverbdeleteme2 = (hello)")]
     fn parse_statement_snapshot(#[case] input: &str) {
+        let tmp = tempfile::tempdir().unwrap();
+        unsafe {
+            std::env::set_var("LAKONIK_CONFIG", tmp.path());
+        }
+        let user_templates = crate::templates::get_user_templates();
+        let test_templates = user_templates
+            .filter(|t| t.path.starts_with("verbs/testverbdeleteme"))
+            .collect::<Vec<_>>();
+        for template in test_templates {
+            crate::templates::delete_user_template(&template.path);
+        }
+
         let mut s = insta::Settings::clone_current();
         s.set_snapshot_suffix(input.replace(' ', "_").to_string());
         let _guard = s.bind_to_scope();

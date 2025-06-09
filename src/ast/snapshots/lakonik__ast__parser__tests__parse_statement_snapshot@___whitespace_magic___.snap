@@ -21,7 +21,7 @@ vocative:
       character: 13
   name: whitespace
 verb:
-  type: verb
+  type: simple
   range:
     start:
       line: 0

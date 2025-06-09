@@ -21,7 +21,7 @@ vocative:
       character: 11
   name: john-doe123
 verb:
-  type: verb
+  type: simple
   range:
     start:
       line: 0

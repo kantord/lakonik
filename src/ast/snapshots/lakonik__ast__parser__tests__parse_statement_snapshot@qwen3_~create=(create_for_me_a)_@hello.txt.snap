@@ -9,7 +9,7 @@ range:
     character: 0
   end:
     line: 0
-    character: 24
+    character: 42
 vocative:
   type: vocative
   range:
@@ -21,22 +21,23 @@ vocative:
       character: 5
   name: qwen3
 verb:
-  type: simple
+  type: assignment
   range:
     start:
       line: 0
       character: 6
     end:
       line: 0
-      character: 12
+      character: 31
   name: create
+  value: create for me a
 parts:
-  - type: inline_shell
+  - type: filepath
     range:
       start:
         line: 0
-        character: 15
+        character: 33
       end:
         line: 0
-        character: 23
-    code: "  tree ."
+        character: 42
+    path: hello.txt

@@ -21,7 +21,7 @@ vocative:
       character: 5
   name: john-
 verb:
-  type: verb
+  type: simple
   range:
     start:
       line: 0

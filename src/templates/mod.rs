@@ -78,6 +78,10 @@ fn templates_from_dir<P: AsRef<Path>>(
 }
 
 fn user_template_dir() -> Option<PathBuf> {
+    if let Ok(p) = std::env::var("LAKONIK_CONFIG") {
+        return Some(PathBuf::from(p));
+    }
+
     ProjectDirs::from("", "", "lakonik")
         .map(|pd| pd.config_dir().join("templates"))
         .filter(|p| p.exists())
@@ -87,6 +91,36 @@ pub fn get_user_templates() -> impl Iterator<Item = Template> {
     user_template_dir()
         .into_iter()
         .flat_map(|dir| templates_from_dir(dir, TemplateSource::User))
+}
+
+pub fn create_user_template(template_name: &str, template_source: &str) {
+    if let Some(base_dir) = user_template_dir() {
+        let file_path = base_dir.join(template_name);
+
+        if let Some(parent) = file_path.parent() {
+            fs::create_dir_all(parent).expect("Failed to create template sub-directory");
+        }
+
+        fs::write(
+            &file_path,
+            format!(
+                "{{% extends \"verbs/base/base\" %}}{{% block body %}}\
+                 {template_source} {{{{description}}}}{{% endblock %}}"
+            ),
+        )
+        .expect("Failed to write user template");
+    } else {
+        panic!("User template directory does not exist");
+    }
+}
+
+pub fn delete_user_template(template_name: &str) {
+    if let Some(dir) = user_template_dir() {
+        let file_path = dir.join(template_name);
+        if file_path.exists() {
+            fs::remove_file(file_path).expect("Failed to delete user template");
+        }
+    }
 }
 
 pub fn build_environment() -> Environment<'static> {

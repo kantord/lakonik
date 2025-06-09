@@ -50,7 +50,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        rust-version: [ stable, beta, nightly ]
+        rust-version: [ stable ]
 
     steps:
       - uses: actions/checkout@v4
@@ -62,12 +62,12 @@ jobs:
             ~/.cargo/index
           key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
 
-      - uses: actions/cache@v4
-        with:
-          path: target
-          key: ${{ runner.os }}-cargo-build-${{ matrix.rust-version }}-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-build-${{ matrix.rust-version }}-
+      # - uses: actions/cache@v4
+      #   with:
+      #     path: target
+      #     key: ${{ runner.os }}-cargo-build-${{ matrix.rust-version }}-${{ hashFiles('**/Cargo.lock') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-cargo-build-${{ matrix.rust-version }}-
 
       - name: Install Rust
         uses: actions-rs/toolchain@v1

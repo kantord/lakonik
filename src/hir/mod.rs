@@ -1,5 +1,10 @@
 #![allow(dead_code)]
-use crate::ast::{FilePathPart, FreeformPart, InlineShellPart, Part, Sentence, Verb, Vocative};
+use lsp_types::Range;
+
+use crate::{
+    ast::{FilePathPart, FreeformPart, InlineShellPart, Part, Sentence, Verb, Vocative},
+    templates::get_user_templates,
+};
 
 pub struct AnalysisContext {}
 
@@ -7,6 +12,10 @@ pub trait Analyzable {
     type AnalyzedNode;
 
     fn analyze(&self, ctx: &mut AnalysisContext) -> Self::AnalyzedNode;
+}
+
+pub trait Analyzed {
+    fn get_range(&self) -> &Range;
 }
 
 #[derive(Clone, Debug)]
@@ -40,9 +49,10 @@ pub enum AnalyzedPart {
     InlineShell(AnalyzedInlineShellPart),
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug, Clone)]
 pub struct AnalyzedVerb {
     pub node: Verb,
+    pub template_name: String,
     pub hover_text: String,
 }
 
@@ -94,6 +104,10 @@ impl Analyzable for Verb {
     fn analyze(&self, _ctx: &mut AnalysisContext) -> Self::AnalyzedNode {
         AnalyzedVerb {
             node: self.clone(),
+            template_name: match self {
+                Verb::Simple(node) => node.name.clone(),
+                Verb::Assignment(node) => node.name.clone(),
+            },
             hover_text: "This is a verb".to_string(),
         }
     }
@@ -109,6 +123,47 @@ impl Analyzable for Sentence {
             verb: self.verb.analyze(_ctx),
             vocative: self.vocative.analyze(_ctx),
             parts: self.parts.iter().map(|part| part.analyze(_ctx)).collect(),
+        }
+    }
+}
+
+impl AnalyzedVerb {
+    /// Creates a template if it doeds not exist but can be created
+    pub fn ensure_template(&self) {
+        match &self.node {
+            Verb::Simple(_) => (),
+            Verb::Assignment(node) => {
+                let template_name = format!("verbs/{}", node.name);
+
+                if !get_user_templates().any(|t| t.path == template_name) {
+                    crate::templates::create_user_template(&template_name, &node.value);
+                }
+            }
+        }
+    }
+}
+
+impl Analyzed for AnalyzedVocative {
+    fn get_range(&self) -> &Range {
+        &self.node.range
+    }
+}
+
+impl Analyzed for AnalyzedVerb {
+    fn get_range(&self) -> &Range {
+        match &self.node {
+            Verb::Simple(node) => &node.range,
+            Verb::Assignment(node) => &node.range,
+        }
+    }
+}
+
+impl Analyzed for AnalyzedPart {
+    fn get_range(&self) -> &Range {
+        match self {
+            AnalyzedPart::Freeform(part) => &part.node.range,
+            AnalyzedPart::FilePath(part) => &part.node.range,
+            AnalyzedPart::InlineShell(part) => &part.node.range,
         }
     }
 }

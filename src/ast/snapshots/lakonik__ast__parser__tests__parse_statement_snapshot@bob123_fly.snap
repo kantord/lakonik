@@ -21,7 +21,7 @@ vocative:
       character: 6
   name: bob123
 verb:
-  type: verb
+  type: simple
   range:
     start:
       line: 0
