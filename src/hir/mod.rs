@@ -125,9 +125,7 @@ impl Analyzable for Sentence {
 }
 
 impl AnalyzedVerb {
-    pub fn ensure_template(&self) {
-        return;
-    }
+    pub fn ensure_template(&self) {}
 }
 
 impl Analyzed for AnalyzedVocative {
