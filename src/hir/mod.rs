@@ -116,11 +116,11 @@ impl Analyzable for Verb {
             template_name, template_source
         );
 
-        return AnalyzedVerb {
+        AnalyzedVerb {
             node: self.clone(),
             template_name,
             hover_text,
-        };
+        }
     }
 }
 
