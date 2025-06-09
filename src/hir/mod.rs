@@ -124,15 +124,12 @@ impl Analyzable for Sentence {
     }
 }
 
-// impl AnalyzedVerb {
-//     pub fn get_template_name(&self) -> &str {
-//         match &self.node {
-//             Verb::Simple(node) => &node.name,
-//             Verb::Assignment(node) => &node.name,
-//         }
-//     }
-// }
-//
+impl AnalyzedVerb {
+    pub fn ensure_template(&self) {
+        return;
+    }
+}
+
 impl Analyzed for AnalyzedVocative {
     fn get_range(&self) -> &Range {
         &self.node.range
