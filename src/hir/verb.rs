@@ -5,7 +5,10 @@ use crate::{
     templates::{get_all_templates, get_user_templates},
 };
 
-use super::{Analyzable, Analyzed, utils::AnalysisContext};
+use super::{
+    Analyzed,
+    utils::{AnalysisContext, Analyzable},
+};
 
 #[derive(Debug, Clone)]
 pub struct AnalyzedVerb {

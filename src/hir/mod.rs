@@ -4,17 +4,10 @@ pub mod utils;
 pub mod verb;
 
 use lsp_types::Range;
-use utils::AnalysisContext;
+use utils::{AnalysisContext, Analyzable};
 use verb::AnalyzedVerb;
 
 use crate::ast::{FilePathPart, FreeformPart, InlineShellPart, Part, Sentence, Vocative};
-
-
-pub trait Analyzable {
-    type AnalyzedNode;
-
-    fn analyze(&self, ctx: &mut AnalysisContext) -> Self::AnalyzedNode;
-}
 
 pub trait Analyzed {
     fn get_range(&self) -> &Range;
