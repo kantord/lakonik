@@ -3,7 +3,8 @@ use std::io::Read;
 use crate::{
     ast::{Part, Sentence, Span, parse_statement},
     hir::{
-        AnalyzedPart, AnalyzedSentence,
+        AnalyzedSentence,
+        part::AnalyzedPart,
         utils::{AnalysisContext, Analyzable},
     },
     templates::build_environment,

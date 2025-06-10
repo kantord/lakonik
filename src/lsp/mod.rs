@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use std::ops::ControlFlow;
 
 use crate::ast::utils::RangeContainsPosition;
+use crate::hir::part::AnalyzedPart;
 use crate::hir::utils::Analyzed;
 use async_lsp::client_monitor::ClientProcessMonitorLayer;
 use async_lsp::concurrency::ConcurrencyLayer;
@@ -24,7 +25,7 @@ use tower::ServiceBuilder;
 use tracing::Level;
 use utils::update_document;
 
-use crate::hir::{AnalyzedPart, AnalyzedSentence};
+use crate::hir::AnalyzedSentence;
 
 pub struct DocumentState {
     analyzed: AnalyzedSentence,
