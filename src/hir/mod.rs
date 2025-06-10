@@ -2,18 +2,14 @@
 
 pub mod utils;
 pub mod verb;
+pub mod vocative;
 
 use lsp_types::Range;
 use utils::{AnalysisContext, Analyzable, Analyzed};
 use verb::AnalyzedVerb;
+use vocative::AnalyzedVocative;
 
-use crate::ast::{FilePathPart, FreeformPart, InlineShellPart, Part, Sentence, Vocative};
-
-#[derive(Clone, Debug)]
-pub struct AnalyzedVocative {
-    pub node: Vocative,
-    pub hover_text: String,
-}
+use crate::ast::{FilePathPart, FreeformPart, InlineShellPart, Part, Sentence};
 
 #[derive(Clone, Debug)]
 pub struct AnalyzedFreeformPart {
@@ -47,17 +43,6 @@ pub struct AnalyzedSentence {
     pub vocative: AnalyzedVocative,
     pub verb: AnalyzedVerb,
     pub parts: Vec<AnalyzedPart>,
-}
-
-impl Analyzable for Vocative {
-    type AnalyzedNode = AnalyzedVocative;
-
-    fn analyze(&self, _ctx: &mut AnalysisContext) -> Self::AnalyzedNode {
-        AnalyzedVocative {
-            node: self.clone(),
-            hover_text: format!("Hover text for vocative: {}", self.name),
-        }
-    }
 }
 
 impl Analyzable for Part {
