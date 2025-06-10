@@ -5,7 +5,6 @@ pub mod utils;
 pub mod verb;
 pub mod vocative;
 
-use lsp_types::Range;
 use part::AnalyzedPart;
 use utils::{AnalysisContext, Analyzable, Analyzed};
 use verb::AnalyzedVerb;
@@ -32,22 +31,6 @@ impl Analyzable for Sentence {
             verb: self.verb.analyze(_ctx),
             vocative: self.vocative.analyze(_ctx),
             parts: self.parts.iter().map(|part| part.analyze(_ctx)).collect(),
-        }
-    }
-}
-
-impl Analyzed for AnalyzedVocative {
-    fn get_range(&self) -> &Range {
-        &self.node.range
-    }
-}
-
-impl Analyzed for AnalyzedPart {
-    fn get_range(&self) -> &Range {
-        match self {
-            AnalyzedPart::Freeform(part) => &part.node.range,
-            AnalyzedPart::FilePath(part) => &part.node.range,
-            AnalyzedPart::InlineShell(part) => &part.node.range,
         }
     }
 }
