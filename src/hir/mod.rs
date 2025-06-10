@@ -9,8 +9,6 @@ use verb::AnalyzedVerb;
 
 use crate::ast::{FilePathPart, FreeformPart, InlineShellPart, Part, Sentence, Vocative};
 
-
-
 #[derive(Clone, Debug)]
 pub struct AnalyzedVocative {
     pub node: Vocative,
