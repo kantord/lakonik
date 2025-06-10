@@ -1,13 +1,14 @@
 #![allow(dead_code)]
 
+pub mod utils;
 pub mod verb;
 
 use lsp_types::Range;
+use utils::AnalysisContext;
 use verb::AnalyzedVerb;
 
 use crate::ast::{FilePathPart, FreeformPart, InlineShellPart, Part, Sentence, Vocative};
 
-pub struct AnalysisContext {}
 
 pub trait Analyzable {
     type AnalyzedNode;

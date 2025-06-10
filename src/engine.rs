@@ -2,7 +2,7 @@ use std::io::Read;
 
 use crate::{
     ast::{Part, Sentence, Span, parse_statement},
-    hir::{AnalysisContext, Analyzable, AnalyzedPart, AnalyzedSentence},
+    hir::{Analyzable, AnalyzedPart, AnalyzedSentence, utils::AnalysisContext},
     templates::build_environment,
 };
 use duct::cmd;
