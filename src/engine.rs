@@ -1,9 +1,11 @@
 use std::io::Read;
 
 use crate::{
-    ast::{parse_statement, Part, Sentence, Span},
+    ast::{Part, Sentence, Span, parse_statement},
     hir::{
-        part::AnalyzedPart, sentence::AnalyzedSentence, utils::{AnalysisContext, Analyzable}
+        part::AnalyzedPart,
+        sentence::AnalyzedSentence,
+        utils::{AnalysisContext, Analyzable},
     },
     templates::build_environment,
 };
