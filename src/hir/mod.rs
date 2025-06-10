@@ -4,14 +4,12 @@ pub mod utils;
 pub mod verb;
 
 use lsp_types::Range;
-use utils::{AnalysisContext, Analyzable};
+use utils::{AnalysisContext, Analyzable, Analyzed};
 use verb::AnalyzedVerb;
 
 use crate::ast::{FilePathPart, FreeformPart, InlineShellPart, Part, Sentence, Vocative};
 
-pub trait Analyzed {
-    fn get_range(&self) -> &Range;
-}
+
 
 #[derive(Clone, Debug)]
 pub struct AnalyzedVocative {
