@@ -1,5 +1,12 @@
+> [!CAUTION]
+> This project is in an extremely early stage of development. It is being developed in the open, but it is not ready to be used yet
 
+# Lakonik
 
+Lakonik is a grammar for AI: it provides end-users with an alternative way to interacti with LLMs and AI agents.
+
+It attemps to combine ideas from `vim` and tools like AutoHotKey with the goal of steamlining interaction and
+minimizing the requried keystrokes to write a prompt.
 
 
 ## Development
