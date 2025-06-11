@@ -1,6 +1,5 @@
 use crate::ast::{Sentence, Span, parse_statement};
-use crate::hir::AnalysisContext;
-use crate::hir::Analyzable;
+use crate::hir::utils::{AnalysisContext, Analyzable};
 use lsp_types::Url;
 use std::collections::HashMap;
 
