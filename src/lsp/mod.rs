@@ -17,7 +17,8 @@ use futures::future::BoxFuture;
 use lsp_types::{
     DidChangeConfigurationParams, Hover, HoverContents, HoverParams, HoverProviderCapability,
     InitializeParams, InitializeResult, MarkedString, Position, ServerCapabilities,
-    TextDocumentSyncCapability, TextDocumentSyncKind, Url,
+    TextDocumentSyncCapability, TextDocumentSyncKind, Url, CompletionParams, CompletionItem,
+    CompletionList, CompletionResponse,
     notification::{
         DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, DidSaveTextDocument,
     },
@@ -51,6 +52,10 @@ impl LanguageServer for ServerState {
                         TextDocumentSyncKind::FULL,
                     )),
                     hover_provider: Some(HoverProviderCapability::Simple(true)),
+                    completion_provider: Some(lsp_types::CompletionOptions {
+                        trigger_characters: Some(vec![" ".to_string()]),
+                        ..Default::default()
+                    }),
                     ..ServerCapabilities::default()
                 },
                 server_info: None,
@@ -79,6 +84,35 @@ impl LanguageServer for ServerState {
             });
 
             Ok(hover)
+        })
+    }
+
+    fn completion(
+        &mut self,
+        _params: CompletionParams,
+    ) -> BoxFuture<'static, Result<Option<CompletionResponse>, Self::Error>> {
+        Box::pin(async move {
+            let items = vec![
+                CompletionItem {
+                    label: "foo".to_string(),
+                    kind: Some(lsp_types::CompletionItemKind::TEXT),
+                    ..Default::default()
+                },
+                CompletionItem {
+                    label: "bar".to_string(),
+                    kind: Some(lsp_types::CompletionItemKind::TEXT),
+                    ..Default::default()
+                },
+                CompletionItem {
+                    label: "lorem".to_string(),
+                    kind: Some(lsp_types::CompletionItemKind::TEXT),
+                    ..Default::default()
+                },
+            ];
+            Ok(Some(CompletionResponse::List(CompletionList {
+                is_incomplete: false,
+                items,
+            })))
         })
     }
 
