@@ -5,7 +5,6 @@ use std::collections::HashMap;
 use std::ops::ControlFlow;
 
 use crate::ast::utils::RangeContainsPosition;
-use crate::ast::{Verb, Part};
 use crate::hir::part::AnalyzedPart;
 use crate::hir::sentence::AnalyzedSentence;
 use crate::hir::utils::Analyzed;
@@ -21,7 +20,7 @@ use lsp_types::{
     DidChangeConfigurationParams, Hover, HoverContents, HoverParams, HoverProviderCapability,
     InitializeParams, InitializeResult, MarkedString, Position, ServerCapabilities,
     TextDocumentSyncCapability, TextDocumentSyncKind, Url, CompletionParams, CompletionItem,
-    CompletionList, CompletionResponse,
+     CompletionResponse,
     notification::{
         DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, DidSaveTextDocument,
     },
