@@ -278,7 +278,7 @@ mod tests {
     use lsp_types::{
         DidOpenTextDocumentParams, HoverContents, HoverParams, InitializeParams, InitializedParams,
         MarkedString, Position, TextDocumentIdentifier, TextDocumentItem,
-        TextDocumentPositionParams, Url, WorkDoneProgressParams,
+        TextDocumentPositionParams, Url, WorkDoneProgressParams, CompletionParams,
     };
     use regex::Regex;
     use rstest::rstest;
@@ -393,6 +393,53 @@ mod tests {
         })
     }
 
+    pub async fn get_completion_items(source: &str, pos: Position) -> Option<Vec<String>> {
+        let (mut client, server_handle, client_handle) = launch_lsp_server().await;
+
+        let uri = Url::parse("file:///testfile").unwrap();
+
+        client
+            .initialize(InitializeParams {
+                ..Default::default()
+            })
+            .await
+            .unwrap();
+        client.initialized(InitializedParams {}).unwrap();
+
+        client
+            .did_open(DidOpenTextDocumentParams {
+                text_document: TextDocumentItem {
+                    uri: uri.clone(),
+                    language_id: "test".into(),
+                    version: 1,
+                    text: source.to_string(),
+                },
+            })
+            .unwrap();
+
+        let completion = client
+            .completion(CompletionParams {
+                text_document_position: TextDocumentPositionParams {
+                    text_document: TextDocumentIdentifier { uri: uri.clone() },
+                    position: pos,
+                },
+                work_done_progress_params: WorkDoneProgressParams::default(),
+                partial_result_params: Default::default(),
+                context: None,
+            })
+            .await
+            .unwrap();
+
+        drop(client);
+        server_handle.abort();
+        client_handle.abort();
+
+        completion.map(|response| match response {
+            CompletionResponse::List(list) => list.items.into_iter().map(|item| item.label).collect(),
+            CompletionResponse::Array(items) => items.into_iter().map(|item| item.label).collect(),
+        })
+    }
+
     #[rstest]
     #[case("qw***en3 create foobar", Some(r"vocative: qwen3$"))]
     #[case("hell***o create foobar", Some(r"vocative: hello$"))]
@@ -430,5 +477,21 @@ mod tests {
                 );
             }
         }
+    }
+
+    #[rstest]
+    #[case("qwen3 create foo", Position::new(0, 15), Some(vec!["foo".to_string(), "bar".to_string(), "lorem".to_string()]))]
+    #[case("qwen3 create", Position::new(0, 10), None)]
+    #[case("qwen3 cre", Position::new(0, 8), None)]
+    #[case("qwen", Position::new(0, 4), None)]
+    #[case("invalid document", Position::new(0, 10), None)]
+    #[tokio::test]
+    async fn completion_cases(
+        #[case] input: &str,
+        #[case] pos: Position,
+        #[case] expected: Option<Vec<String>>,
+    ) {
+        let actual = get_completion_items(input, pos).await;
+        assert_eq!(actual, expected);
     }
 }
