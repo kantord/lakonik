@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use std::ops::ControlFlow;
 
 use crate::ast::utils::RangeContainsPosition;
+use crate::ast::Verb;
 use crate::hir::part::AnalyzedPart;
 use crate::hir::sentence::AnalyzedSentence;
 use crate::hir::utils::Analyzed;
@@ -27,10 +28,12 @@ use tower::ServiceBuilder;
 use tracing::Level;
 use utils::update_document;
 
+#[derive(Clone)]
 pub struct DocumentState {
     analyzed: AnalyzedSentence,
 }
 
+#[derive(Clone)]
 pub struct ServerState {
     _client: ClientSocket,
     docs: HashMap<Url, DocumentState>,
@@ -89,9 +92,33 @@ impl LanguageServer for ServerState {
 
     fn completion(
         &mut self,
-        _params: CompletionParams,
+        params: CompletionParams,
     ) -> BoxFuture<'static, Result<Option<CompletionResponse>, Self::Error>> {
+        let uri = params.text_document_position.text_document.uri.clone();
+        let pos = params.text_document_position.position;
+        
+        // Clone the document state before moving into async block
+        let doc = self.docs.get(&uri).cloned();
+        
         Box::pin(async move {
+            // Get the document if it exists and is parsed
+            let doc = match doc {
+                Some(doc) => doc,
+                None => return Ok(None),
+            };
+
+            // Check if we're after the verb (which means we're in the parts section)
+            let verb_range = match &doc.analyzed.verb.node {
+                Verb::Simple(v) => &v.range,
+                Verb::Assignment(v) => &v.range,
+            };
+
+            // Only provide completions if we're after the verb
+            if pos.line < verb_range.end.line || 
+               (pos.line == verb_range.end.line && pos.character <= verb_range.end.character) {
+                return Ok(None);
+            }
+
             let items = vec![
                 CompletionItem {
                     label: "foo".to_string(),
