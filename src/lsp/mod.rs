@@ -1,4 +1,6 @@
 mod utils;
+mod completion;
+
 use std::collections::HashMap;
 use std::ops::ControlFlow;
 
@@ -107,65 +109,7 @@ impl LanguageServer for ServerState {
                 None => return Ok(None),
             };
 
-            // Check if we're after the verb (which means we're in the parts section)
-            let verb_range = match &doc.analyzed.verb.node {
-                Verb::Simple(v) => &v.range,
-                Verb::Assignment(v) => &v.range,
-            };
-
-            // Only provide completions if we're after the verb
-            if pos.line < verb_range.end.line || 
-               (pos.line == verb_range.end.line && pos.character <= verb_range.end.character) {
-                return Ok(None);
-            }
-
-            // Get the current line's text up to the cursor position
-            let line_text = doc.analyzed.node.parts.iter()
-                .find_map(|part| {
-                    if let Part::Freeform(p) = part {
-                        if p.range.start.line == pos.line {
-                            Some(p.text.clone())
-                        } else {
-                            None
-                        }
-                    } else {
-                        None
-                    }
-                })
-                .unwrap_or_default();
-
-            // Get the prefix up to the cursor position
-            let prefix = if pos.character as usize <= line_text.len() {
-                &line_text[..pos.character as usize]
-            } else {
-                &line_text
-            };
-
-            // Filter completion items based on the prefix
-            let items = vec![
-                CompletionItem {
-                    label: "foo".to_string(),
-                    kind: Some(lsp_types::CompletionItemKind::TEXT),
-                    ..Default::default()
-                },
-                CompletionItem {
-                    label: "bar".to_string(),
-                    kind: Some(lsp_types::CompletionItemKind::TEXT),
-                    ..Default::default()
-                },
-                CompletionItem {
-                    label: "lorem".to_string(),
-                    kind: Some(lsp_types::CompletionItemKind::TEXT),
-                    ..Default::default()
-                },
-            ].into_iter()
-            .filter(|item| item.label.starts_with(prefix))
-            .collect();
-
-            Ok(Some(CompletionResponse::List(CompletionList {
-                is_incomplete: false,
-                items,
-            })))
+            Ok(completion::get_completions(&doc.analyzed, &pos))
         })
     }
 
