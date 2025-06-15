@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use std::ops::ControlFlow;
 
 use crate::ast::utils::RangeContainsPosition;
-use crate::ast::Verb;
+use crate::ast::{Verb, Part};
 use crate::hir::part::AnalyzedPart;
 use crate::hir::sentence::AnalyzedSentence;
 use crate::hir::utils::Analyzed;
@@ -119,6 +119,29 @@ impl LanguageServer for ServerState {
                 return Ok(None);
             }
 
+            // Get the current line's text up to the cursor position
+            let line_text = doc.analyzed.node.parts.iter()
+                .find_map(|part| {
+                    if let Part::Freeform(p) = part {
+                        if p.range.start.line == pos.line {
+                            Some(p.text.clone())
+                        } else {
+                            None
+                        }
+                    } else {
+                        None
+                    }
+                })
+                .unwrap_or_default();
+
+            // Get the prefix up to the cursor position
+            let prefix = if pos.character as usize <= line_text.len() {
+                &line_text[..pos.character as usize]
+            } else {
+                &line_text
+            };
+
+            // Filter completion items based on the prefix
             let items = vec![
                 CompletionItem {
                     label: "foo".to_string(),
@@ -135,7 +158,10 @@ impl LanguageServer for ServerState {
                     kind: Some(lsp_types::CompletionItemKind::TEXT),
                     ..Default::default()
                 },
-            ];
+            ].into_iter()
+            .filter(|item| item.label.starts_with(prefix))
+            .collect();
+
             Ok(Some(CompletionResponse::List(CompletionList {
                 is_incomplete: false,
                 items,
@@ -480,7 +506,13 @@ mod tests {
     }
 
     #[rstest]
-    #[case("qwen3 create foo", Position::new(0, 15), Some(vec!["foo".to_string(), "bar".to_string(), "lorem".to_string()]))]
+    #[case("qwen3 create f", Position::new(0, 15), Some(vec!["foo".to_string()]))]
+    #[case("qwen3 create b", Position::new(0, 15), Some(vec!["bar".to_string()]))]
+    #[case("qwen3 create l", Position::new(0, 15), Some(vec!["lorem".to_string()]))]
+    #[case("qwen3 create x", Position::new(0, 15), Some(vec![]))]
+    #[case("qwen3 create fo", Position::new(0, 16), Some(vec!["foo".to_string()]))]
+    #[case("qwen3 create ba", Position::new(0, 16), Some(vec!["bar".to_string()]))]
+    #[case("qwen3 create lo", Position::new(0, 16), Some(vec!["lorem".to_string()]))]
     #[case("qwen3 create", Position::new(0, 10), None)]
     #[case("qwen3 cre", Position::new(0, 8), None)]
     #[case("qwen", Position::new(0, 4), None)]
